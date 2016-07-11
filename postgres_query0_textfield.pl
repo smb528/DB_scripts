@@ -41,30 +41,36 @@ my $json = JSON->new();
 
 while(my $row=$sth->fetchrow_arrayref){
 
-    my $mutations_count = 0;
-    my $ref_count = 0;
-    my $bad_quality = 0;
+    my $mutations_count = 1;
+    my $ref_count = 1;
+    my $bad_quality = 1;
 
     my $json_value = $json->decode(@$row);
     #print Dumper $json_value;
 
     foreach my $marker (keys %$json_value) {
-	my $GT = $json_value->{$marker}->{'GT'};
-	my $GQ = $json_value->{$marker}->{'GQ'};
+      my $GT = $json_value->{$marker}->{'GT'};
+    	my $GQ = $json_value->{$marker}->{'GQ'};
 
-	if ($GQ > 90) {
-	    if ($GT ne '0/0') {
-		$mutations_count++;
-	    } else {
-		$ref_count++;
-	    }
-	} else {
-	    $bad_quality++;
-	}
+      if ($GT ne '0/0') {
+        $mutations_count++;
+      } else {
+        $ref_count++;
+      }
+
+  #if ($GQ > 90) {
+	#    if ($GT ne '0/0') {
+	#	$mutations_count++;
+	#    } else {
+	#	$ref_count++;
+	#    }
+	#} else {
+	#    $bad_quality++;
+	#}
     }
 
     #print "BAD COUNT: ".$bad_quality."\n";
-    #print "MUTATIONS COUNT: ".$mutations_count."\n";
+    print "MUTATIONS COUNT: ".$mutations_count."\n";
     #print "REF COUNT: ".$ref_count."\n\n";
 
 }
