@@ -53,7 +53,7 @@ while(my $row=$sth->fetchrow_arrayref){
 	my $GQ = $json_value->{$marker}->{'GQ'};
 
 	if ($GQ > 90) {
-	    if ($GT eq '0/0') {
+	    if ($GT ne '0/0') {
 		$mutations_count++;
 	    } else {
 		$ref_count++;
