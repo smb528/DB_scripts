@@ -12,7 +12,7 @@ use List::MoreUtils qw(first_index);
 
 our ($opt_H, $opt_D, $opt_p, $opt_m, $opt_c, $opt_n);
 
-getopts('H:D:p:m:c:n:');
+getopts('H:D:p:m:n:');
 
 if (!$opt_H || !$opt_D || !$opt_p || !$opt_m || !$opt_n) {
     die "Must provide options -H (hostname), -D (database name), -p (db user password), -m (protocol name), -n (num reps) \n";
@@ -47,6 +47,7 @@ for (1..$num_reps) {
     my %unique_alts;
 
     while(my ($protocol_json, $genotype_json) = $sth->fetchrow_array){
+        my $n_start = Time::HiRes::time();
 
         my $deletion_count = 0;
         #my $nondeletion_count = 0;
@@ -106,8 +107,11 @@ for (1..$num_reps) {
 
         }
 
-        print "DELETIONS COUNT: ".$deletion_count."\n";
         #print "NONDELETION COUNT: ".$nondeletion_count."\n";
+        print "DEL: ".$deletion_count."\n";
+        my $n_end = Time::HiRes::time();
+        my $n_duration = $n_end - $n_start;
+        print "T: ".$n_duration."\n";
     }
 
     #print Dumper \%unique_alts;
@@ -115,4 +119,4 @@ for (1..$num_reps) {
 
 my $end = Time::HiRes::time();
 my $duration = $end - $start;
-print Dumper "Time: ".$duration;
+print "Time: ".$duration."\n";
