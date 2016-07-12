@@ -39,7 +39,6 @@ $sth_stock->execute($protocol_name);
 
 
 #Get List of markers that contain a '-' in ALT.
-
 my $sth_markers = $dbh->prepare("SELECT kv.key, kv.value->>'alt' from nd_protocol join nd_protocolprop AS a using(nd_protocol_id), jsonb_each(a.value) kv WHERE nd_protocol.name = ?;")
     or die "Couldn't prepare statement: ".$dbh->errstr;
 
@@ -52,18 +51,13 @@ while (my ($marker, $alt) = $sth_markers->fetchrow_array) {
     }
 }
 
-#my $json = JSON->new();
-#my $del_markers_json = $json->encode($del_markers);
+#Count markers where GT is not 0/0 for an individual stock.
+my $sth_geno = $dbh->prepare("select kv.key, kv.value->>'GT' from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;")
+    or die "Couldn't prepare statement: " . $dbh->errstr;
 
 #Loop over the list of stocks that we found.
 while (my $stock_id = $sth_stock->fetchrow_array) {
     my $deletion_count = 0;
-    
-    #Count markers where GT is not 0/0 for an individual stock.
-    my $sth_geno = $dbh->prepare("select kv.key, kv.value->>'GT' from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;")
-        or die "Couldn't prepare statement: " . $dbh->errstr;
-
-    #print $stock_id;
 
     $sth_geno->execute($stock_id, '{"GT":"0/0"}', '{"GT":"./."}');
 
