@@ -33,7 +33,7 @@ my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::
 
     print "Opened database successfully\n";
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Mutations, Time\n";
+print $fh "Stock ID, Number Deletions, Time\n";
 
 
 for (1..$num_reps) {

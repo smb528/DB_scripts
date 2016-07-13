@@ -61,7 +61,7 @@ for (1..$num_reps) {
           my $GT = $json_value->{$marker}->{'GT'};
           #my $GQ = $json_value->{$marker}->{'GQ'};
 
-          if ($GT ne '0/0') {
+          if ($GT ne '0/0' && $GT ne './.') {
             $mutations_count++;
           } else {
             #$ref_count++;

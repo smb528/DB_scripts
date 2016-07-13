@@ -26,8 +26,8 @@ my $count_deletion_in_either_chr = $opt_c || 0;
 my $num_reps = $opt_n;
 my $out_file = $opt_f;
 
-my $start = Time::HiRes::time();
 
+my $start = Time::HiRes::time();
 my $driver = "Pg";
 my $dsn = "DBI:$driver:dbname=$dbname;host=$dbhost;port=5432";
 my $userid = "postgres";
@@ -35,14 +35,14 @@ my $password = $dbpass;
 my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::errstr;
 		       print "Opened database successfully\n";
 open(my $fh, '>', $out_file);
-print $fh "Genotype ID, Number Mutations, Time\n";
+print $fh "Genotype ID, Number Deletions, Time\n";
 
 
 
 my $json = JSON->new();
 
 for (1..$num_reps) {
-
+    my $n_start = Time::HiRes::time();
     #get json string for protocolprop and genotypeprop for an individual stock that was genotyped using the given protocol name
     my $sth = $dbh->prepare('select nd_protocolprop.value, genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ')
         or die "Couldn't prepare statement: " . $dbh->errstr;
@@ -52,7 +52,7 @@ for (1..$num_reps) {
     my %unique_alts;
 
     while(my ($protocol_json, $genotype_json, $genotype_id) = $sth->fetchrow_array){
-        my $n_start = Time::HiRes::time();
+
 
         my $deletion_count = 0;
         #my $nondeletion_count = 0;

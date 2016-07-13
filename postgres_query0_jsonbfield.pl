@@ -35,7 +35,7 @@ my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::
 		       print "Opened database successfully\n";
 
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Mutatuins, Time\n";
+print $fh "Stock ID, Number Mutations, Time\n";
 
 for (1..$num_reps) {
     my $n_start = Time::HiRes::time();
@@ -47,13 +47,13 @@ for (1..$num_reps) {
     $sth_stock->execute($protocol_name);
 
     #Count markers where GT is not 0/0 for an individual stock.
-    my $sth_count = $dbh->prepare("select count(kv.key) from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? ;")
+    my $sth_count = $dbh->prepare("select count(kv.key) from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;")
         or die "Couldn't prepare statement: " . $dbh->errstr;
 
     #Loop over the list of stocks that we found.
     while (my $stock_id = $sth_stock->fetchrow_array) {
 
-      $sth_count->execute($stock_id, '{"GT":"0/0"}');
+      $sth_count->execute($stock_id, '{"GT":"0/0"}', '{"GT":"./."}');
       my $mutations_count = $sth_count->fetchrow_array();
 
       #print "MUTATIONS COUNT: ".$mutations_count."\n";
