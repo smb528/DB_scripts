@@ -56,7 +56,7 @@ for (1..$num_reps) {
       $sth_count->execute($stock_id, '{"GT":"0/0"}', '{"GT":"./."}');
       my $mutations_count = $sth_count->fetchrow_array();
 
-      #print "MUTATIONS COUNT: ".$mutations_count."\n";
+      print "MUTATIONS COUNT: ".$mutations_count."\n";
       my $n_end = Time::HiRes::time();
       my $n_duration = $n_end - $n_start;
       #print "T: ".$n_duration."\n";
