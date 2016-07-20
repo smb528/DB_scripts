@@ -1,10 +1,7 @@
-#!/usr/bin/perl
 
-
-
-use DBI;
+use MongoDB;
 use strict;
-#use Data::Dumper;
+use Data::Dumper;
 use JSON;
 use Time::HiRes;
 use Getopt::Std;
@@ -32,27 +29,26 @@ if ($opt_l) {
 }
 #print Dumper \@selected_markers;
 
-#my $start = Time::HiRes::time();
-my $driver = "Pg";
-my $dsn = "DBI:$driver:dbname=$dbname;host=$dbhost;port=5432";
-my $userid = "postgres";
-my $password = $dbpass;
-my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::errstr;
-		       print "Opened database successfully\n";
+my $start = Time::HiRes::time();
+
+my $client = MongoDB-> connect($dbhost);
+my $db = $client-> get_database($dbname);
+my $genotype_collection = $db->get_collection('genotype_collection');
+my $protocol_collection = $db->get_collection('protocol_collection');
 open(my $fh, '>', $out_file);
 print $fh "Result\tTime\n";
 
 my $json = JSON->new();
 
-my $sth = $dbh->prepare('select nd_protocolprop.value from nd_protocol join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ');
-
-$sth->execute($protocol_name);
-
 my @marker_names;
-while (my $protocol = $sth->fetchrow_array) {
-    my $protocol_string = $json->decode($protocol);
-    foreach my $marker (keys %$protocol_string) {
-        push @marker_names, $marker;
+if (!$opt_l) {
+    my $protocol_cursor = $protocol_collection->find({protocol_name => $protocol_name});
+
+    while(my $row = $protocol_cursor->next){
+        my $protocol_string = $json->decode($row->{'markers'} );
+        foreach my $marker (keys %$protocol_string) {
+            push @marker_names, $marker;
+        }
     }
 }
 
@@ -68,15 +64,12 @@ for (1..$num_reps) {
 
     my $n_start = Time::HiRes::time();
 
-    my $sth = $dbh->prepare("select genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
-
-    $sth->execute($protocol_name);
+    my $protocol_cursor = $genotype_collection->find({protocol_name => $protocol_name});
 
     my @accessions_with_mutations;
-    my $num_selected_markers = scalar(@selected_markers);
-    while(my ($genotypeprop, $genotype_id)=$sth->fetchrow_array){
+    while(my $row = $protocol_cursor->next){
 
-        my $json_value = $json->decode($genotypeprop);
+        my $json_value = $json->decode($row->{'marker_scores'});
         #print Dumper $json_value;
 
         my $mutations_count=0;
@@ -91,8 +84,8 @@ for (1..$num_reps) {
            }
        }
 
-       if ($mutations_count == $num_selected_markers) {
-           push @accessions_with_mutations, $genotype_id;
+       if ($mutations_count == scalar(@selected_markers)) {
+           push @accessions_with_mutations, $row->{'stock_id'};
        }
    }
 
@@ -108,6 +101,6 @@ for (1..$num_reps) {
 
 close $fh;
 
-#my $end = Time::HiRes::time();
-#my $duration = $end - $start;
-#print "Time: ".$duration."\n";
+my $end = Time::HiRes::time();
+my $duration = $end - $start;
+print "Time: ".$duration."\n";

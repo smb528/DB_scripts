@@ -32,13 +32,12 @@ my $genotype_collection = $db->get_collection('genotype_collection');
 open(my $fh, '>', $out_file);
 print $fh "Stock ID, Number Mutations, Time\n";
 
+my $json = JSON->new();
 
 for (1..$num_reps) {
    my $n_start = Time::HiRes::time();
 
     my $cursor = $genotype_collection->find({protocol_name => $protocol_name});
-
-    my $json = JSON->new();
 
     while(my $row = $cursor->next){
 
@@ -58,9 +57,10 @@ for (1..$num_reps) {
 
           if ($GT ne '0/0' && $GT ne './.') {
             $mutations_count++;
-          } else {
-            #$ref_count++;
           }
+          #else {
+            #$ref_count++;
+          #}
 
       #if ($GQ > 90) {
     	#    if ($GT ne '0/0') {
@@ -74,13 +74,13 @@ for (1..$num_reps) {
         }
 
         #print "BAD COUNT: ".$bad_quality."\n";
-        print "MUTATIONS COUNT: ".$mutations_count."\n";
+        #print "MUTATIONS COUNT: ".$mutations_count."\n";
         #print "REF COUNT: ".$ref_count."\n\n";
         my $n_end = Time::HiRes::time();
         my $n_duration = $n_end - $n_start;
-        print "T: ".$n_duration."\n";
+        #print "T: ".$n_duration."\n";
 
-print $fh "$stock_id, $mutations_count, $n_duration\n";
+        print $fh "$stock_id, $mutations_count, $n_duration\n";
 
     }
 }

@@ -31,7 +31,7 @@ my $userid = "postgres";
 my $password = $dbpass;
 my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::errstr;
 
-    print "Opened database successfully\n";
+print "Opened database successfully\n";
 open(my $fh, '>', $out_file);
 print $fh "Stock ID, Number Deletions, Time\n";
 
@@ -41,28 +41,23 @@ for (1..$num_reps) {
     my $n_start = Time::HiRes::time();
 
     #Get List of all Stocks that were genotyped using the protocol given.
-    my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;")
-        or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
 
     $sth_stock->execute($protocol_name);
 
 
     #Get List of markers that contain a '-' in ALT.
-    my $sth_markers = $dbh->prepare("SELECT kv.key, kv.value->>'alt' from nd_protocol join nd_protocolprop AS a using(nd_protocol_id), jsonb_each(a.value) kv WHERE nd_protocol.name = ?;")
-        or die "Couldn't prepare statement: ".$dbh->errstr;
+    my $sth_markers = $dbh->prepare("SELECT kv.key, kv.value->>'alt' from nd_protocol join nd_protocolprop AS a using(nd_protocol_id), jsonb_each(a.value) kv WHERE nd_protocol.name = ? and kv.value::text LIKE '%-%';");
 
     $sth_markers->execute($protocol_name);
 
     my %del_markers;
     while (my ($marker, $alt) = $sth_markers->fetchrow_array) {
-        if ($alt =~ /-/) {
-            $del_markers{$marker} = $alt;
-        }
+        $del_markers{$marker} = $alt;
     }
 
     #Selecting markers where GT is not 0/0 or ./. for an individual stock.
-    my $sth_geno = $dbh->prepare("select kv.key, kv.value->>'GT' from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;")
-        or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth_geno = $dbh->prepare("select kv.key, kv.value->>'GT' from stock join nd_experiment_stock using(stock_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;");
 
     #Loop over the list of stocks that we found.
     while (my $stock_id = $sth_stock->fetchrow_array) {
@@ -90,10 +85,10 @@ for (1..$num_reps) {
             }
         }
 
-        print "DEL: ".$deletion_count."\n";
+        #print "DEL: ".$deletion_count."\n";
         my $n_end = Time::HiRes::time();
         my $n_duration = $n_end - $n_start;
-        print "T: ".$n_duration."\n";
+        #print "T: ".$n_duration."\n";
 
         print $fh "$stock_id, $deletion_count, $n_duration\n";
     }

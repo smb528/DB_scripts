@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
-use DBI;
 
+
+use DBI;
 use strict;
 use Data::Dumper;
 use JSON;
@@ -45,8 +46,7 @@ my $json = JSON->new();
 my @marker_names;
 if (!$opt_l) {
 
-    my $sth = $dbh->prepare('select kv.key from nd_protocol join nd_protocolprop AS a using(nd_protocol_id), jsonb_each(a.value) AS kv where nd_protocol.name = ? ');
-        #or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth = $dbh->prepare('select kv.key from nd_protocol join nd_protocolprop AS a using(nd_protocol_id), json_each(a.value) AS kv where nd_protocol.name = ? ');
 
     $sth->execute($protocol_name);
 
@@ -73,19 +73,17 @@ for (1..$num_reps) {
 
     #Get List of all Stocks that were genotyped using the protocol given.
     my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
-        #or die "Couldn't prepare statement: " . $dbh->errstr;
 
     $sth_stock->execute($protocol_name);
 
     #Selecting markers where GT is not 0/0 or ./. for an individual stock.
-    my $sth_geno = $dbh->prepare("select kv.key from stock join nd_experiment_stock using(stock_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;");
-        #or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth_geno = $dbh->prepare("select kv.key from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), json_each(a.value) kv WHERE stock.stock_id = ? and not kv.value::text LIKE '%0/0%' and not kv.value::text LIKE '%./.%';");
 
     my @accessions_with_mutations;
     #Loop over the list of stocks that we found.
     while (my $stock_id = $sth_stock->fetchrow_array) {
 
-        $sth_geno->execute($stock_id, '{"GT":"0/0"}', '{"GT":"./."}');
+        $sth_geno->execute($stock_id);
 
         my $mutations_count=0;
         while (my ($marker) = $sth_geno->fetchrow_array()) {

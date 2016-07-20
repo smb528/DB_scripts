@@ -1,7 +1,8 @@
 #!/usr/bin/perl
 
-use DBI;
 
+
+use DBI;
 use strict;
 use Data::Dumper;
 use JSON;
@@ -46,7 +47,7 @@ my @marker_names;
 if (!$opt_l) {
 
     my $sth = $dbh->prepare('select kv.key from nd_protocol join nd_protocolprop AS a using(nd_protocol_id), jsonb_each(a.value) AS kv where nd_protocol.name = ? ');
-        #or die "Couldn't prepare statement: " . $dbh->errstr;
+    #    or die "Couldn't prepare statement: " . $dbh->errstr;
 
     $sth->execute($protocol_name);
 
@@ -66,8 +67,18 @@ for (1..$num_reps) {
     }
     #print Dumper \@selected_markers;
 
-    my %selected_markers = map { $_ => 1 } @selected_markers;
-
+    my $selected_markers_string = '(';
+    my $count = 1;
+    foreach my $m (@selected_markers) {
+        if ($count < scalar(@selected_markers)) {
+            $selected_markers_string = $selected_markers_string."'$m',";
+        } else {
+            $selected_markers_string = $selected_markers_string."'$m'";
+        }
+        $count++;
+    }
+    $selected_markers_string = $selected_markers_string.')';
+    #print $selected_markers_string;
 
     my $n_start = Time::HiRes::time();
 
@@ -78,7 +89,7 @@ for (1..$num_reps) {
     $sth_stock->execute($protocol_name);
 
     #Selecting markers where GT is not 0/0 or ./. for an individual stock.
-    my $sth_geno = $dbh->prepare("select kv.key from stock join nd_experiment_stock using(stock_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;");
+    my $sth_geno = $dbh->prepare("select kv.key from stock join nd_experiment_stock using(stock_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ? and kv.key::text IN $selected_markers_string;");
         #or die "Couldn't prepare statement: " . $dbh->errstr;
 
     my @accessions_with_mutations;
@@ -89,9 +100,8 @@ for (1..$num_reps) {
 
         my $mutations_count=0;
         while (my ($marker) = $sth_geno->fetchrow_array()) {
-            if (exists($selected_markers{$marker})) {
-                $mutations_count++;
-            }
+            #print $marker."\n";
+            $mutations_count++;
         }
 
         if ($mutations_count == scalar(@selected_markers)) {

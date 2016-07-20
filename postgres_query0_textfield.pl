@@ -37,16 +37,15 @@ my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::
 open(my $fh, '>', $out_file);
 print $fh "Genotype ID, Number Mutations, Time\n";
 
+my $json = JSON->new();
 
 for (1..$num_reps) {
    my $n_start = Time::HiRes::time();
 
-    my $sth = $dbh->prepare("select genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;")
-        or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth = $dbh->prepare("select genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
+        #or die "Couldn't prepare statement: " . $dbh->errstr;
 
     $sth->execute($protocol_name);
-
-    my $json = JSON->new();
 
     while(my ($genotypeprop, $genotype_id)=$sth->fetchrow_array){
 
@@ -63,9 +62,10 @@ for (1..$num_reps) {
 
           if ($GT ne '0/0' && $GT ne './.') {
             $mutations_count++;
-          } else {
-            #$ref_count++;
           }
+          #else {
+            #$ref_count++;
+          #}
 
       #if ($GQ > 90) {
     	#    if ($GT ne '0/0') {
@@ -79,11 +79,11 @@ for (1..$num_reps) {
         }
 
         #print "BAD COUNT: ".$bad_quality."\n";
-        print "MUTATIONS COUNT: ".$mutations_count."\n";
+        #print "MUTATIONS COUNT: ".$mutations_count."\n";
         #print "REF COUNT: ".$ref_count."\n\n";
         my $n_end = Time::HiRes::time();
         my $n_duration = $n_end - $n_start;
-        print "T: ".$n_duration."\n";
+        #print "T: ".$n_duration."\n";
 
 print $fh "$genotype_id, $mutations_count, $n_duration\n";
 

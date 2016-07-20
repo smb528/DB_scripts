@@ -43,22 +43,26 @@ my $json = JSON->new();
 
 for (1..$num_reps) {
     my $n_start = Time::HiRes::time();
-    #get json string for protocolprop and genotypeprop for an individual stock that was genotyped using the given protocol name
-    my $sth = $dbh->prepare('select nd_protocolprop.value, genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ')
-        or die "Couldn't prepare statement: " . $dbh->errstr;
+
+    #first get protocolprop because it is the same across all genotypes
+    my $sth_protocol = $dbh->prepare('select nd_protocolprop.value from nd_protocol join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ');
+        #or die "Couldn't prepare statement: " . $dbh->errstr;
+
+    $sth_protocol->execute($protocol_name);
+
+    my $protocol_json = $sth_protocol->fetchrow_array;
+    my $protocol_json_value = $json->decode($protocol_json);
+
+    #then get genotype scores for the accessions
+    my $sth = $dbh->prepare('select genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ');
+        #or die "Couldn't prepare statement: " . $dbh->errstr;
 
     $sth->execute($protocol_name);
 
-    my %unique_alts;
-
-    while(my ($protocol_json, $genotype_json, $genotype_id) = $sth->fetchrow_array){
-
+    while(my ($genotype_json, $genotype_id) = $sth->fetchrow_array){
 
         my $deletion_count = 0;
-        #my $nondeletion_count = 0;
 
-        my $protocol_json_value = $json->decode($protocol_json);
-        #print Dumper $protocol_json_value;
         my $genotype_json_value = $json->decode($genotype_json);
         #print Dumper $genotype_json_value;
 
@@ -66,12 +70,6 @@ for (1..$num_reps) {
 
         	my $alt = $protocol_json_value->{$marker}->{'alt'};
         	my $GT = $genotype_json_value->{$marker}->{'GT'};  ## '1/1', '1/3'
-        	#my $GQ = $genotype_json_value->{$marker}->{'GQ'};
-
-        	#print Dumper $alt;
-        	#print Dumper $GT;
-
-        	#$unique_alts{$alt} = $GT;
 
         	if ($alt =~ /-/ && $GT ne '0/0' && $GT ne './.') {
 
@@ -113,10 +111,10 @@ for (1..$num_reps) {
         }
 
         #print "NONDELETION COUNT: ".$nondeletion_count."\n";
-        print "DEL: ".$deletion_count."\n";
+        #print "DEL: ".$deletion_count."\n";
         my $n_end = Time::HiRes::time();
         my $n_duration = $n_end - $n_start;
-        print "T: ".$n_duration."\n";
+        #print "T: ".$n_duration."\n";
 
         print $fh "$genotype_id, $deletion_count, $n_duration\n";
     }

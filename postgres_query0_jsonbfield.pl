@@ -41,14 +41,14 @@ for (1..$num_reps) {
     my $n_start = Time::HiRes::time();
 
     #Get List of all Stocks that were geotypes using the protocol given.
-    my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;")
-        or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
+        #or die "Couldn't prepare statement: " . $dbh->errstr;
 
     $sth_stock->execute($protocol_name);
 
     #Count markers where GT is not 0/0 for an individual stock.
-    my $sth_count = $dbh->prepare("select count(kv.key) from stock join nd_experiment_stock using(stock_id) join nd_experiment using(nd_experiment_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;")
-        or die "Couldn't prepare statement: " . $dbh->errstr;
+    my $sth_count = $dbh->prepare("select count(kv.key) from stock join nd_experiment_stock using(stock_id) join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop AS a using(genotype_id), jsonb_each(a.value) kv WHERE stock.stock_id = ? and not kv.value @> ? and not kv.value @> ?;");
+        #or die "Couldn't prepare statement: " . $dbh->errstr;
 
     #Loop over the list of stocks that we found.
     while (my $stock_id = $sth_stock->fetchrow_array) {
@@ -56,7 +56,7 @@ for (1..$num_reps) {
       $sth_count->execute($stock_id, '{"GT":"0/0"}', '{"GT":"./."}');
       my $mutations_count = $sth_count->fetchrow_array();
 
-      print "MUTATIONS COUNT: ".$mutations_count."\n";
+      #print "MUTATIONS COUNT: ".$mutations_count."\n";
       my $n_end = Time::HiRes::time();
       my $n_duration = $n_end - $n_start;
       #print "T: ".$n_duration."\n";
@@ -66,9 +66,10 @@ for (1..$num_reps) {
     }
 }
 
+my $end = Time::HiRes::time();
+
 close $fh;
 
-my $end = Time::HiRes::time();
 my $duration = $end - $start;
 
 print Dumper "Time: ".$duration;
