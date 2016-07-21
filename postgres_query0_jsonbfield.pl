@@ -38,7 +38,6 @@ open(my $fh, '>', $out_file);
 print $fh "Stock ID, Number Mutations, Time\n";
 
 for (1..$num_reps) {
-    my $n_start = Time::HiRes::time();
 
     #Get List of all Stocks that were geotypes using the protocol given.
     my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
@@ -52,6 +51,7 @@ for (1..$num_reps) {
 
     #Loop over the list of stocks that we found.
     while (my $stock_id = $sth_stock->fetchrow_array) {
+        my $n_start = Time::HiRes::time();
 
       $sth_count->execute($stock_id, '{"GT":"0/0"}', '{"GT":"./."}');
       my $mutations_count = $sth_count->fetchrow_array();
