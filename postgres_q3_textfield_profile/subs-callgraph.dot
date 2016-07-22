@@ -1,0 +1,925 @@
+digraph {
+graph [overlap=false]
+subgraph cluster_DynaLoader {
+	label="DynaLoader";
+	"DynaLoader::dl_find_symbol";
+	"DynaLoader::dl_install_xsub";
+	"DynaLoader::BEGIN@92";
+	"DynaLoader::BEGIN@17";
+	"DynaLoader::CORE:ftfile";
+	"DynaLoader::dl_load_flags";
+	"DynaLoader::bootstrap";
+	"DynaLoader::BEGIN@21";
+	"DynaLoader::CORE:subst";
+	"DynaLoader::dl_load_file";
+	"DynaLoader::CORE:ftsize";
+	"DynaLoader::CORE:ftdir";
+	"DynaLoader::dl_undef_symbols";
+}
+subgraph cluster_overloading {
+	label="overloading";
+	"overloading::BEGIN@2";
+	"overloading::unimport";
+}
+subgraph cluster_DBD_Pg_st {
+	label="DBD::Pg::st";
+	"DBD::Pg::st::_prepare";
+}
+subgraph cluster_List_MoreUtils {
+	label="List::MoreUtils";
+	"List::MoreUtils::BEGIN@13";
+	"List::MoreUtils::BEGIN@5";
+	"List::MoreUtils::bootstrap";
+	"List::MoreUtils::BEGIN@7";
+	"List::MoreUtils::BEGIN@3";
+	"List::MoreUtils::BEGIN@93";
+	"List::MoreUtils::BEGIN@12";
+	"List::MoreUtils::BEGIN@4";
+	"List::MoreUtils::BEGIN@8";
+}
+subgraph cluster_base {
+	label="base";
+	"base::has_attr";
+	"base::BEGIN@4";
+	"base::__ANON__[base.pm:70]";
+	"base::CORE:subst";
+	"base::BEGIN@3";
+	"base::CORE:match";
+	"base::import";
+	"base::has_fields";
+}
+subgraph cluster_List_Util {
+	label="List::Util";
+	"List::Util::BEGIN@10";
+	"List::Util::BEGIN@31";
+	"List::Util::BEGIN@9";
+}
+subgraph cluster_constant {
+	label="constant";
+	"constant::BEGIN@4";
+	"constant::BEGIN@24";
+	"constant::BEGIN@126";
+	"constant::import";
+	"constant::CORE:qr";
+	"constant::CORE:regcomp";
+	"constant::BEGIN@64";
+	"constant::BEGIN@39";
+	"constant::BEGIN@6";
+	"constant::CORE:match";
+	"constant::BEGIN@3";
+	"constant::BEGIN@2";
+}
+subgraph cluster_DBD___st {
+	label="DBD::_::st";
+	"DBD::_::st::BEGIN@1856";
+}
+subgraph cluster_mro {
+	label="mro";
+	"mro::method_changed_in";
+}
+subgraph cluster_DBI {
+	label="DBI";
+	"DBI::BEGIN@710";
+	"DBI::CORE:match";
+	"DBI::BEGIN@985";
+	"DBI::CORE:subst";
+	"DBI::SQL_SMALLINT";
+	"DBI::BEGIN@181";
+	"DBI::BEGIN@294";
+	"DBI::BEGIN@888";
+	"DBI::__ANON__[DBI.pm:751]";
+	"DBI::BEGIN@179";
+	"DBI::BEGIN@553";
+	"DBI::setup_driver";
+	"DBI::SQL_DOUBLE";
+	"DBI::BEGIN@290";
+	"DBI::SQL_BIGINT";
+	"DBI::_install_method";
+	"DBI::_new_dbh";
+	"DBI::END";
+	"DBI::SQL_FLOAT";
+	"DBI::BEGIN@1054";
+	"DBI::bootstrap";
+	"DBI::BEGIN@178";
+	"DBI::BEGIN@177";
+	"DBI::SQL_DECIMAL";
+	"DBI::BEGIN@823";
+	"DBI::install_driver";
+	"DBI::SQL_REAL";
+	"DBI::BEGIN@857";
+	"DBI::SQL_INTEGER";
+	"DBI::disconnect_all";
+	"DBI::BEGIN@13";
+	"DBI::_new_handle";
+	"DBI::_new_sth";
+	"DBI::SQL_NUMERIC";
+	"DBI::_new_drh";
+	"DBI::connect";
+}
+subgraph cluster_JSON_Backend_XS {
+	label="JSON::Backend::XS";
+	"JSON::Backend::XS::BEGIN@9";
+	"JSON::Backend::XS::BEGIN@29";
+	"JSON::Backend::XS::BEGIN@18";
+	"JSON::Backend::XS::init";
+	"JSON::Backend::XS::BEGIN@11";
+	"JSON::Backend::XS::BEGIN@42";
+}
+subgraph cluster_DBI_var {
+	label="DBI::var";
+	"DBI::var::TIESCALAR";
+}
+subgraph cluster_DBI__firesafe {
+	label="DBI::_firesafe";
+	"DBI::_firesafe::BEGIN@13";
+	"DBI::_firesafe::BEGIN@12";
+	"DBI::_firesafe::BEGIN@14";
+}
+subgraph cluster_XSLoader {
+	label="XSLoader";
+	"XSLoader::load";
+}
+subgraph cluster_Exporter {
+	label="Exporter";
+	"Exporter::export_to_level";
+	"Exporter::export";
+	"Exporter::CORE:match";
+	"Exporter::as_heavy";
+	"Exporter::import";
+	"Exporter::export_ok_tags";
+	"Exporter::CORE:subst";
+	"Exporter::require_version";
+}
+subgraph cluster_Carp {
+	label="Carp";
+	"Carp::BEGIN@4";
+	"Carp::BEGIN@73";
+	"Carp::BEGIN@6";
+	"Carp::BEGIN@49";
+	"Carp::BEGIN@61";
+	"Carp::BEGIN@555";
+	"Carp::BEGIN@3";
+	"Carp::_fetch_sub";
+	"Carp::BEGIN@171";
+	"Carp::BEGIN@131";
+	"Carp::BEGIN@568";
+	"Carp::BEGIN@5";
+	"Carp::BEGIN@575";
+}
+subgraph cluster_Types_Serialiser_Error {
+	label="Types::Serialiser::Error";
+	"Types::Serialiser::Error::BEGIN@145";
+}
+subgraph cluster_main {
+	label="main";
+	"main::CORE:close";
+	"main::CORE:open";
+	"main::BEGIN@8";
+	"main::BEGIN@9";
+	"main::BEGIN@5";
+	"main::CORE:print";
+	"main::BEGIN@11";
+	"main::BEGIN@6";
+	"main::NULL";
+	"main::BEGIN@10";
+	"main::BEGIN@7";
+	"main::RUNTIME";
+}
+subgraph cluster_DBD_Pg {
+	label="DBD::Pg";
+	"DBD::Pg::BEGIN@23";
+	"DBD::Pg::BEGIN@24";
+	"DBD::Pg::bootstrap";
+	"DBD::Pg::BEGIN@22";
+	"DBD::Pg::BEGIN@21";
+	"DBD::Pg::BEGIN@19";
+	"DBD::Pg::driver";
+}
+subgraph cluster_vars {
+	label="vars";
+	"vars::BEGIN@7";
+	"vars::BEGIN@3";
+	"vars::CORE:match";
+	"vars::import";
+	"vars::BEGIN@8";
+}
+subgraph cluster_Internals {
+	label="Internals";
+	"Internals::SvREADONLY";
+}
+subgraph cluster_utf8 {
+	label="utf8";
+	"utf8::encode";
+}
+subgraph cluster_Types_Serialiser_BooleanBase {
+	label="Types::Serialiser::BooleanBase";
+	"Types::Serialiser::BooleanBase::BEGIN@116";
+}
+subgraph cluster_attributes {
+	label="attributes";
+	"attributes::CORE:qr";
+	"attributes::_modify_attrs_and_deprecate";
+	"attributes::reftype";
+	"attributes::BEGIN@9";
+	"attributes::_modify_attrs";
+	"attributes::import";
+}
+subgraph cluster_overload {
+	label="overload";
+	"overload::BEGIN@83";
+	"overload::BEGIN@144";
+	"overload::BEGIN@114";
+	"overload::OVERLOAD";
+	"overload::import";
+}
+subgraph cluster_JSON_XS {
+	label="JSON::XS";
+	"JSON::XS::new";
+	"JSON::XS::BEGIN@111";
+	"JSON::XS::BEGIN@112";
+	"JSON::XS::BEGIN@114";
+	"JSON::XS::BEGIN@104";
+	"JSON::XS::BEGIN@1736";
+	"JSON::XS::DESTROY";
+	"JSON::XS::decode";
+}
+subgraph cluster_Exporter_Tiny {
+	label="Exporter::Tiny";
+	"Exporter::Tiny::CORE:match";
+	"Exporter::Tiny::BEGIN@283";
+	"Exporter::Tiny::_exporter_expand_sub";
+	"Exporter::Tiny::BEGIN@3";
+	"Exporter::Tiny::CORE:qr";
+	"Exporter::Tiny::BEGIN@253";
+	"Exporter::Tiny::CORE:regcomp";
+	"Exporter::Tiny::BEGIN@170";
+	"Exporter::Tiny::import";
+	"Exporter::Tiny::_exporter_install_sub";
+	"Exporter::Tiny::_exporter_validate_opts";
+	"Exporter::Tiny::BEGIN@297";
+	"Exporter::Tiny::mkopt";
+	"Exporter::Tiny::BEGIN@5";
+	"Exporter::Tiny::CORE:sort";
+	"Exporter::Tiny::BEGIN@5.1";
+	"Exporter::Tiny::BEGIN@143";
+	"Exporter::Tiny::_exporter_permitted_regexp";
+	"Exporter::Tiny::BEGIN@48";
+	"Exporter::Tiny::__ANON__[Exporter/Tiny.pm:38]";
+	"Exporter::Tiny::BEGIN@189";
+	"Exporter::Tiny::BEGIN@4";
+	"Exporter::Tiny::BEGIN@206";
+}
+subgraph cluster_DBD__mem_common {
+	label="DBD::_mem::common";
+	"DBD::_mem::common::DESTROY";
+}
+subgraph cluster_version {
+	label="version";
+	"version::(\"\"";
+	"version::_VERSION";
+	"version::(bool";
+	"version::BEGIN@20";
+	"version::(cmp";
+	"version::BEGIN@5";
+	"version::import";
+	"version::qv";
+	"version::__ANON__[version.pm:52]";
+	"version::BEGIN@4";
+	"version::BEGIN@7";
+}
+subgraph cluster_List_MoreUtils_PP {
+	label="List::MoreUtils::PP";
+	"List::MoreUtils::PP::BEGIN@334";
+	"List::MoreUtils::PP::BEGIN@3";
+	"List::MoreUtils::PP::BEGIN@5";
+	"List::MoreUtils::PP::BEGIN@327";
+	"List::MoreUtils::PP::BEGIN@4";
+}
+subgraph cluster_Getopt_Std {
+	label="Getopt::Std";
+	"Getopt::Std::getopts";
+	"Getopt::Std::CORE:match";
+}
+subgraph cluster_common_sense {
+	label="common::sense";
+	"common::sense::import";
+}
+subgraph cluster_strict {
+	label="strict";
+	"strict::CORE:regcomp";
+	"strict::unimport";
+	"strict::bits";
+	"strict::CORE:match";
+	"strict::import";
+}
+subgraph cluster_DBI_st {
+	label="DBI::st";
+	"DBI::st::execute";
+	"DBI::st::fetchrow_array";
+}
+subgraph cluster_bytes {
+	label="bytes";
+	"bytes::import";
+}
+subgraph cluster_DBI_dr {
+	label="DBI::dr";
+	"DBI::dr::disconnect_all";
+	"DBI::dr::connect";
+}
+subgraph cluster_DBD_Pg_db {
+	label="DBD::Pg::db";
+	"DBD::Pg::db::BEGIN@258";
+	"DBD::Pg::db::prepare";
+	"DBD::Pg::db::_login";
+	"DBD::Pg::db::BEGIN@260";
+}
+subgraph cluster_Data_Dumper {
+	label="Data::Dumper";
+	"Data::Dumper::BEGIN@18";
+	"Data::Dumper::BEGIN@12";
+	"Data::Dumper::BEGIN@731";
+	"Data::Dumper::BEGIN@22";
+	"Data::Dumper::_vstring";
+	"Data::Dumper::BEGIN@272";
+	"Data::Dumper::BEGIN@24";
+}
+subgraph cluster_DBD___db {
+	label="DBD::_::db";
+	"DBD::_::db::BEGIN@1534";
+}
+subgraph cluster_DBI_common {
+	label="DBI::common";
+	"DBI::common::DESTROY";
+	"DBI::common::STORE";
+	"DBI::common::FETCH";
+}
+subgraph cluster_Exporter_Heavy {
+	label="Exporter::Heavy";
+	"Exporter::Heavy::BEGIN@4";
+	"Exporter::Heavy::_push_tags";
+	"Exporter::Heavy::heavy_export_ok_tags";
+	"Exporter::Heavy::BEGIN@3";
+	"Exporter::Heavy::CORE:subst";
+	"Exporter::Heavy::BEGIN@188";
+	"Exporter::Heavy::heavy_export_to_level";
+	"Exporter::Heavy::heavy_export";
+	"Exporter::Heavy::CORE:match";
+	"Exporter::Heavy::heavy_require_version";
+}
+subgraph cluster_version_regex {
+	label="version::regex";
+	"version::regex::CORE:qr";
+	"version::regex::BEGIN@5";
+	"version::regex::CORE:regcomp";
+	"version::regex::BEGIN@3";
+}
+subgraph cluster_List_MoreUtils_XS {
+	label="List::MoreUtils::XS";
+	"List::MoreUtils::XS::BEGIN@10";
+	"List::MoreUtils::XS::BEGIN@7";
+	"List::MoreUtils::XS::BEGIN@3";
+	"List::MoreUtils::XS::BEGIN@1";
+	"List::MoreUtils::XS::BEGIN@5";
+	"List::MoreUtils::XS::BEGIN@4";
+}
+subgraph cluster_JSON {
+	label="JSON";
+	"JSON::import";
+	"JSON::BEGIN@9";
+	"JSON::is_xs";
+	"JSON::BEGIN@2";
+	"JSON::CORE:readline";
+	"JSON::CORE:close";
+	"JSON::BEGIN@4";
+	"JSON::backend";
+	"JSON::_load_xs";
+	"JSON::BEGIN@5";
+	"JSON::_set_module";
+	"JSON::BEGIN@6";
+	"JSON::BEGIN@319";
+}
+subgraph cluster_warnings_register {
+	label="warnings::register";
+	"warnings::register::import";
+}
+subgraph cluster_DBD_Pg_dr {
+	label="DBD::Pg::dr";
+	"DBD::Pg::dr::connect";
+	"DBD::Pg::dr::CORE:match";
+	"DBD::Pg::dr::CORE:subst";
+	"DBD::Pg::dr::BEGIN@180";
+}
+subgraph cluster_Time_HiRes {
+	label="Time::HiRes";
+	"Time::HiRes::import";
+	"Time::HiRes::BEGIN@4";
+	"Time::HiRes::bootstrap";
+	"Time::HiRes::BEGIN@3";
+	"Time::HiRes::time";
+	"Time::HiRes::BEGIN@43";
+}
+subgraph cluster_JSON_Boolean {
+	label="JSON::Boolean";
+	"JSON::Boolean::_overrride_overload";
+}
+subgraph cluster_DBD_Pg_DefaultValue {
+	label="DBD::Pg::DefaultValue";
+	"DBD::Pg::DefaultValue::new";
+}
+subgraph cluster_JSON_Backend_XS_Supportable {
+	label="JSON::Backend::XS::Supportable";
+	"JSON::Backend::XS::Supportable::BEGIN@99";
+}
+subgraph cluster_UNIVERSAL {
+	label="UNIVERSAL";
+	"UNIVERSAL::isa";
+	"UNIVERSAL::can";
+	"UNIVERSAL::VERSION";
+}
+subgraph cluster_DBI_db {
+	label="DBI::db";
+	"DBI::db::prepare";
+	"DBI::db::connected";
+}
+subgraph cluster_DBD___dr {
+	label="DBD::_::dr";
+	"DBD::_::dr::BEGIN@1469";
+}
+subgraph cluster_JSON_Backend_PP {
+	label="JSON::Backend::PP";
+	"JSON::Backend::PP::BEGIN@403";
+}
+subgraph cluster_Types_Serialiser {
+	label="Types::Serialiser";
+	"Types::Serialiser::BEGIN@102";
+	"Types::Serialiser::BEGIN@20";
+}
+subgraph cluster_Scalar_Util {
+	label="Scalar::Util";
+	"Scalar::Util::BEGIN@10";
+	"Scalar::Util::BEGIN@9";
+	"Scalar::Util::weaken";
+}
+subgraph cluster_warnings {
+	label="warnings";
+	"warnings::unimport";
+	"warnings::CORE:match";
+	"warnings::import";
+	"warnings::_mkMask";
+	"warnings::register_categories";
+	"warnings::CORE:regcomp";
+}
+subgraph cluster_DBD___common {
+	label="DBD::_::common";
+	"DBD::_::common::trace_msg";
+	"DBD::_::common::CORE:match";
+	"DBD::_::common::BEGIN@1369";
+	"DBD::_::common::install_method";
+}
+subgraph cluster_Config {
+	label="Config";
+	"Config::BEGIN@10";
+	"Config::BEGIN@9";
+	"Config::BEGIN@47";
+	"Config::TIEHASH";
+	"Config::BEGIN@11";
+	"Config::FETCH";
+	"Config::import";
+}
+"DBI::BEGIN@177" -> "Carp::BEGIN@575";
+"Carp::BEGIN@5" -> "warnings::CORE:match";
+"JSON::_load_xs" -> "JSON::Boolean::_overrride_overload";
+"main::RUNTIME" -> "Getopt::Std::getopts";
+"List::MoreUtils::XS::BEGIN@1" -> "List::MoreUtils::PP::BEGIN@3";
+"Data::Dumper::BEGIN@272" -> "Data::Dumper::_vstring";
+"Exporter::as_heavy" -> "Exporter::Heavy::BEGIN@188";
+"attributes::import" -> "attributes::_modify_attrs_and_deprecate";
+"main::BEGIN@5" -> "DBI::BEGIN@857";
+"main::BEGIN@8" -> "JSON::Backend::PP::BEGIN@403";
+"DBI::BEGIN@177" -> "Carp::BEGIN@131";
+"JSON::Backend::XS::BEGIN@9" -> "constant::import";
+"JSON::Backend::XS::BEGIN@18" -> "constant::import";
+"JSON::Backend::XS::BEGIN@11" -> "constant::import";
+"Data::Dumper::BEGIN@272" -> "constant::import";
+"main::BEGIN@8" -> "JSON::BEGIN@9";
+"Carp::BEGIN@73" -> "Carp::_fetch_sub";
+"Carp::BEGIN@61" -> "Carp::_fetch_sub";
+"main::BEGIN@5" -> "DBD::_::db::BEGIN@1534";
+"main::BEGIN@5" -> "DBI::BEGIN@823";
+"main::NULL" -> "main::BEGIN@7";
+"main::BEGIN@5" -> "DBI::BEGIN@178";
+"DynaLoader::bootstrap" -> "DynaLoader::dl_find_symbol";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@6";
+"JSON::_load_xs" -> "JSON::CORE:readline";
+"main::BEGIN@9" -> "Time::HiRes::BEGIN@43";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@5";
+"JSON::BEGIN@2" -> "UNIVERSAL::VERSION";
+"JSON::_set_module" -> "UNIVERSAL::VERSION";
+"main::BEGIN@5" -> "UNIVERSAL::VERSION";
+"DBI::__ANON__[DBI.pm:751]" -> "DBI::dr::connect";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@4";
+"DBD::Pg::driver" -> "DBD::_::common::install_method";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@48";
+"DBI::BEGIN@177" -> "Carp::BEGIN@73";
+"DynaLoader::bootstrap" -> "DynaLoader::dl_undef_symbols";
+"DynaLoader::bootstrap" -> "DynaLoader::CORE:ftsize";
+"overload::import" -> "overload::OVERLOAD";
+"List::MoreUtils::XS::BEGIN@1" -> "List::MoreUtils::PP::BEGIN@334";
+"DBI::dr::connect" -> "DBD::Pg::dr::connect";
+"DBI::install_driver" -> "DBI::setup_driver";
+"main::BEGIN@5" -> "DBI::setup_driver";
+"DBI::install_driver" -> "Exporter::Heavy::heavy_require_version";
+"JSON::XS::BEGIN@114" -> "Types::Serialiser::BooleanBase::BEGIN@116";
+"Exporter::Tiny::_exporter_permitted_regexp" -> "Exporter::Tiny::CORE:qr";
+"Data::Dumper::BEGIN@731" -> "bytes::import";
+"main::BEGIN@5" -> "DBI::BEGIN@181";
+"DBI::install_driver" -> "DBD::Pg::BEGIN@22";
+"DBI::BEGIN@177" -> "Carp::BEGIN@171";
+"DynaLoader::bootstrap" -> "DynaLoader::CORE:subst";
+"main::NULL" -> "main::BEGIN@6";
+"DBI::BEGIN@177" -> "Carp::BEGIN@61";
+"main::BEGIN@7" -> "overload::BEGIN@83";
+"attributes::import" -> "attributes::reftype";
+"main::RUNTIME" -> "Time::HiRes::time";
+"main::BEGIN@9" -> "Time::HiRes::import";
+"DynaLoader::bootstrap" -> "List::MoreUtils::bootstrap";
+"DynaLoader::BEGIN@21" -> "Config::BEGIN@10";
+"attributes::_modify_attrs_and_deprecate" -> "attributes::_modify_attrs";
+"List::MoreUtils::XS::BEGIN@1" -> "List::MoreUtils::PP::BEGIN@5";
+"vars::import" -> "vars::CORE:match";
+"Exporter::Heavy::heavy_export_ok_tags" -> "Exporter::Heavy::_push_tags";
+"Exporter::Tiny::import" -> "Exporter::Tiny::__ANON__[Exporter/Tiny.pm:38]";
+"constant::import" -> "mro::method_changed_in";
+"Exporter::import" -> "Exporter::CORE:match";
+"List::MoreUtils::BEGIN@13" -> "List::MoreUtils::XS::BEGIN@10";
+"DBI::install_driver" -> "DBD::Pg::BEGIN@24";
+"JSON::_load_xs" -> "JSON::CORE:close";
+"List::MoreUtils::BEGIN@13" -> "List::MoreUtils::XS::BEGIN@7";
+"JSON::_load_xs" -> "JSON::Backend::XS::BEGIN@18";
+"main::BEGIN@7" -> "Data::Dumper::BEGIN@272";
+"base::import" -> "base::has_fields";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@126";
+"constant::BEGIN@24" -> "Internals::SvREADONLY";
+"constant::import" -> "Internals::SvREADONLY";
+"DBI::install_driver" -> "DBI::SQL_DECIMAL";
+"main::BEGIN@5" -> "List::Util::BEGIN@9";
+"DBI::install_driver" -> "DBD::Pg::db::BEGIN@258";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@64";
+"DynaLoader::bootstrap" -> "DynaLoader::dl_install_xsub";
+"DynaLoader::BEGIN@21" -> "version::(bool";
+"main::BEGIN@5" -> "DBD::_::common::BEGIN@1369";
+"DynaLoader::BEGIN@21" -> "Config::BEGIN@9";
+"main::RUNTIME" -> "main::CORE:close";
+"Config::BEGIN@11" -> "vars::BEGIN@8";
+"Exporter::as_heavy" -> "Exporter::Heavy::BEGIN@4";
+"DBI::install_driver" -> "DBD::Pg::DefaultValue::new";
+"DBI::BEGIN@177" -> "Carp::BEGIN@555";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@206";
+"DBI::install_driver" -> "DBD::Pg::dr::BEGIN@180";
+"base::import" -> "base::__ANON__[base.pm:70]";
+"Exporter::Heavy::heavy_require_version" -> "version::_VERSION";
+"main::BEGIN@7" -> "overload::BEGIN@144";
+"main::BEGIN@8" -> "JSON::_load_xs";
+"Carp::BEGIN@4" -> "strict::CORE:match";
+"DBI::connect" -> "DBI::__ANON__[DBI.pm:751]";
+"main::BEGIN@5" -> "DBI::BEGIN@888";
+"List::MoreUtils::XS::BEGIN@1" -> "List::MoreUtils::PP::BEGIN@327";
+"DBI::install_driver" -> "DBI::SQL_SMALLINT";
+"Exporter::as_heavy" -> "Exporter::Heavy::BEGIN@3";
+"List::MoreUtils::XS::BEGIN@10" -> "List::MoreUtils::XS::BEGIN@1";
+"DBD::Pg::BEGIN@19" -> "version::regex::BEGIN@5";
+"DynaLoader::BEGIN@21" -> "Config::import";
+"DBD::Pg::BEGIN@19" -> "version::regex::CORE:qr";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@297";
+"version::__ANON__[version.pm:52]" -> "version::qv";
+"main::BEGIN@5" -> "DBI::BEGIN@13";
+"DBI::BEGIN@181" -> "Exporter::Heavy::heavy_export_ok_tags";
+"DBI::install_driver" -> "Exporter::Heavy::heavy_export_ok_tags";
+"DynaLoader::bootstrap" -> "DynaLoader::CORE:ftdir";
+"Types::Serialiser::Error::BEGIN@145" -> "overload::import";
+"Types::Serialiser::BooleanBase::BEGIN@116" -> "overload::import";
+"main::RUNTIME" -> "main::CORE:print";
+"main::BEGIN@5" -> "Scalar::Util::BEGIN@10";
+"DBI::install_driver" -> "DBI::SQL_REAL";
+"DBI::connect" -> "DBI::install_driver";
+"main::BEGIN@5" -> "DBI::BEGIN@177";
+"JSON::BEGIN@2" -> "JSON::XS::BEGIN@112";
+"DynaLoader::bootstrap" -> "DBI::bootstrap";
+"DBI::BEGIN@178" -> "DynaLoader::BEGIN@17";
+"DBI::install_driver" -> "DBI::SQL_FLOAT";
+"main::BEGIN@11" -> "Exporter::Tiny::import";
+"Exporter::Tiny::import" -> "Exporter::Tiny::_exporter_validate_opts";
+"JSON::_load_xs" -> "JSON::Backend::XS::BEGIN@11";
+"DynaLoader::bootstrap" -> "DynaLoader::dl_load_flags";
+"Scalar::Util::BEGIN@10" -> "warnings::import";
+"Carp::BEGIN@5" -> "warnings::import";
+"List::MoreUtils::BEGIN@5" -> "warnings::import";
+"Exporter::Tiny::BEGIN@5" -> "warnings::import";
+"Config::BEGIN@10" -> "warnings::import";
+"List::Util::BEGIN@10" -> "warnings::import";
+"DBI::_firesafe::BEGIN@13" -> "warnings::import";
+"List::MoreUtils::PP::BEGIN@5" -> "warnings::import";
+"List::MoreUtils::XS::BEGIN@5" -> "warnings::import";
+"overloading::BEGIN@2" -> "warnings::import";
+"DBD::_::common::install_method" -> "DBI::_install_method";
+"main::BEGIN@5" -> "DBI::_install_method";
+"base::import" -> "UNIVERSAL::isa";
+"DBI::setup_driver" -> "UNIVERSAL::isa";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@4";
+"Data::Dumper::BEGIN@272" -> "constant::CORE:qr";
+"overload::BEGIN@83" -> "overloading::BEGIN@2";
+"JSON::BEGIN@6" -> "base::BEGIN@4";
+"DBI::install_driver" -> "DBD::Pg::BEGIN@21";
+"XSLoader::load" -> "DynaLoader::BEGIN@92";
+"main::BEGIN@8" -> "JSON::BEGIN@4";
+"JSON::is_xs" -> "JSON::backend";
+"JSON::_set_module" -> "JSON::backend";
+"main::BEGIN@5" -> "DBI::BEGIN@553";
+"main::BEGIN@5" -> "List::Util::BEGIN@10";
+"Carp::BEGIN@568" -> "warnings::unimport";
+"Carp::BEGIN@6" -> "warnings::unimport";
+"Exporter::Tiny::BEGIN@283" -> "warnings::unimport";
+"Exporter::Tiny::BEGIN@5.1" -> "warnings::unimport";
+"Exporter::Heavy::BEGIN@188" -> "warnings::unimport";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@12";
+"JSON::_load_xs" -> "JSON::Backend::XS::BEGIN@9";
+"DBD::Pg::dr::connect" -> "DBD::Pg::dr::CORE:subst";
+"main::BEGIN@5" -> "DBI::BEGIN@710";
+"DBI::BEGIN@181" -> "DBI::CORE:match";
+"JSON::_set_module" -> "JSON::is_xs";
+"DBD::Pg::BEGIN@19" -> "version::regex::CORE:regcomp";
+"DynaLoader::bootstrap" -> "DBD::Pg::bootstrap";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@5";
+"main::RUNTIME" -> "DBI::db::prepare";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@143";
+"Config::BEGIN@11" -> "vars::BEGIN@3";
+"Exporter::Tiny::import" -> "Exporter::Tiny::_exporter_permitted_regexp";
+"DynaLoader::bootstrap" -> "Time::HiRes::bootstrap";
+"DBD::Pg::BEGIN@19" -> "version::regex::BEGIN@3";
+"List::MoreUtils::BEGIN@13" -> "List::MoreUtils::XS::BEGIN@4";
+"DynaLoader::BEGIN@92" -> "attributes::import";
+"DBI::db::prepare" -> "DBD::Pg::db::prepare";
+"DBD::Pg::BEGIN@19" -> "version::BEGIN@4";
+"main::BEGIN@9" -> "Time::HiRes::BEGIN@3";
+"Exporter::Heavy::heavy_export" -> "Exporter::Heavy::CORE:subst";
+"main::RUNTIME" -> "DBI::st::execute";
+"DBD::Pg::dr::connect" -> "DBI::common::FETCH";
+"DBI::BEGIN@181" -> "Exporter::export_ok_tags";
+"DBI::install_driver" -> "Exporter::export_ok_tags";
+"DBI::install_driver" -> "DBD::Pg::db::BEGIN@260";
+"Getopt::Std::getopts" -> "Exporter::import";
+"DBD::Pg::db::BEGIN@258" -> "Exporter::import";
+"main::BEGIN@7" -> "Exporter::import";
+"main::BEGIN@10" -> "Exporter::import";
+"Data::Dumper::BEGIN@22" -> "Exporter::import";
+"main::BEGIN@5" -> "Exporter::import";
+"JSON::XS::BEGIN@111" -> "Exporter::import";
+"DynaLoader::bootstrap" -> "DynaLoader::CORE:ftfile";
+"List::MoreUtils::PP::BEGIN@327" -> "vars::import";
+"version::regex::BEGIN@5" -> "vars::import";
+"version::BEGIN@7" -> "vars::import";
+"List::MoreUtils::XS::BEGIN@7" -> "vars::import";
+"base::BEGIN@4" -> "vars::import";
+"Config::BEGIN@11" -> "vars::import";
+"constant::BEGIN@6" -> "vars::import";
+"DBD::Pg::BEGIN@24" -> "vars::import";
+"DBI::__ANON__[DBI.pm:751]" -> "DBI::db::connected";
+"DBI::BEGIN@178" -> "DynaLoader::BEGIN@21";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@189";
+"DynaLoader::BEGIN@92" -> "attributes::BEGIN@9";
+"DBI::BEGIN@177" -> "Carp::BEGIN@5";
+"JSON::_load_xs" -> "JSON::Backend::XS::Supportable::BEGIN@99";
+"JSON::XS::BEGIN@114" -> "Types::Serialiser::BEGIN@102";
+"Exporter::Heavy::heavy_export" -> "Exporter::Heavy::CORE:match";
+"JSON::BEGIN@2" -> "XSLoader::load";
+"Data::Dumper::BEGIN@24" -> "XSLoader::load";
+"main::BEGIN@5" -> "XSLoader::load";
+"List::MoreUtils::XS::BEGIN@10" -> "XSLoader::load";
+"DynaLoader::BEGIN@92" -> "XSLoader::load";
+"main::NULL" -> "main::BEGIN@8";
+"DBI::connect" -> "DBI::common::STORE";
+"DBI::__ANON__[DBI.pm:751]" -> "DBI::common::STORE";
+"DBD::Pg::dr::connect" -> "DBI::common::STORE";
+"base::import" -> "base::CORE:match";
+"main::BEGIN@5" -> "DBI::BEGIN@985";
+"JSON::BEGIN@2" -> "JSON::XS::BEGIN@111";
+"JSON::XS::BEGIN@114" -> "Types::Serialiser::Error::BEGIN@145";
+"Getopt::Std::getopts" -> "Getopt::Std::CORE:match";
+"DynaLoader::BEGIN@21" -> "Config::BEGIN@11";
+"base::import" -> "base::has_attr";
+"Types::Serialiser::BEGIN@20" -> "common::sense::import";
+"JSON::XS::BEGIN@104" -> "common::sense::import";
+"DBI::install_driver" -> "Exporter::require_version";
+"main::BEGIN@5" -> "DBI::var::TIESCALAR";
+"Exporter::Tiny::import" -> "Exporter::Tiny::mkopt";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@2";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@93";
+"DBI::install_driver" -> "DBI::_firesafe::BEGIN@13";
+"DBI::END" -> "DBI::disconnect_all";
+"DBI::install_driver" -> "DBI::SQL_INTEGER";
+"Exporter::Tiny::import" -> "Exporter::Tiny::_exporter_expand_sub";
+"main::BEGIN@8" -> "JSON::BEGIN@319";
+"main::RUNTIME" -> "DBI::common::DESTROY";
+"main::NULL" -> "DBI::common::DESTROY";
+"DynaLoader::BEGIN@92" -> "attributes::CORE:qr";
+"Time::HiRes::import" -> "Exporter::export_to_level";
+"JSON::import" -> "Exporter::export_to_level";
+"Exporter::Tiny::_exporter_expand_sub" -> "Exporter::Tiny::CORE:regcomp";
+"Exporter::Tiny::_exporter_permitted_regexp" -> "Exporter::Tiny::CORE:regcomp";
+"warnings::register::import" -> "warnings::register_categories";
+"Exporter::Tiny::import" -> "Exporter::Tiny::_exporter_install_sub";
+"List::MoreUtils::XS::BEGIN@1" -> "List::MoreUtils::PP::BEGIN@4";
+"main::RUNTIME" -> "JSON::XS::new";
+"DBI::install_driver" -> "version::__ANON__[version.pm:52]";
+"main::BEGIN@7" -> "Data::Dumper::BEGIN@22";
+"main::NULL" -> "main::BEGIN@10";
+"DBI::BEGIN@985" -> "strict::unimport";
+"DBI::BEGIN@710" -> "strict::unimport";
+"DBI::BEGIN@888" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@253" -> "strict::unimport";
+"List::Util::BEGIN@31" -> "strict::unimport";
+"DBI::BEGIN@553" -> "strict::unimport";
+"List::MoreUtils::PP::BEGIN@334" -> "strict::unimport";
+"JSON::Backend::XS::Supportable::BEGIN@99" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@189" -> "strict::unimport";
+"Carp::BEGIN@555" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@206" -> "strict::unimport";
+"DBI::BEGIN@290" -> "strict::unimport";
+"Exporter::Heavy::BEGIN@4" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@48" -> "strict::unimport";
+"Config::BEGIN@47" -> "strict::unimport";
+"constant::BEGIN@64" -> "strict::unimport";
+"Time::HiRes::BEGIN@43" -> "strict::unimport";
+"DBI::BEGIN@1054" -> "strict::unimport";
+"DBI::BEGIN@823" -> "strict::unimport";
+"JSON::Backend::XS::BEGIN@42" -> "strict::unimport";
+"Carp::BEGIN@131" -> "strict::unimport";
+"constant::BEGIN@126" -> "strict::unimport";
+"DBI::BEGIN@857" -> "strict::unimport";
+"JSON::BEGIN@319" -> "strict::unimport";
+"JSON::Backend::PP::BEGIN@403" -> "strict::unimport";
+"JSON::Backend::XS::BEGIN@29" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@143" -> "strict::unimport";
+"List::MoreUtils::BEGIN@93" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@297" -> "strict::unimport";
+"Carp::BEGIN@575" -> "strict::unimport";
+"Exporter::Tiny::BEGIN@170" -> "strict::unimport";
+"version::BEGIN@20" -> "strict::unimport";
+"constant::BEGIN@39" -> "strict::unimport";
+"DBD::Pg::BEGIN@19" -> "version::BEGIN@5";
+"main::BEGIN@5" -> "DBI::BEGIN@290";
+"constant::import" -> "constant::CORE:regcomp";
+"DBD::_::dr::BEGIN@1469" -> "strict::import";
+"Exporter::Tiny::BEGIN@4" -> "strict::import";
+"version::BEGIN@5" -> "strict::import";
+"DBD::Pg::dr::BEGIN@180" -> "strict::import";
+"Scalar::Util::BEGIN@9" -> "strict::import";
+"List::MoreUtils::PP::BEGIN@4" -> "strict::import";
+"Config::BEGIN@9" -> "strict::import";
+"vars::BEGIN@8" -> "strict::import";
+"DBD::Pg::db::BEGIN@260" -> "strict::import";
+"DBD::_::st::BEGIN@1856" -> "strict::import";
+"DBD::_::common::BEGIN@1369" -> "strict::import";
+"List::Util::BEGIN@9" -> "strict::import";
+"Time::HiRes::BEGIN@4" -> "strict::import";
+"DBD::_::db::BEGIN@1534" -> "strict::import";
+"Exporter::Heavy::BEGIN@3" -> "strict::import";
+"main::BEGIN@6" -> "strict::import";
+"Carp::BEGIN@4" -> "strict::import";
+"List::MoreUtils::BEGIN@4" -> "strict::import";
+"base::BEGIN@3" -> "strict::import";
+"DBI::BEGIN@294" -> "strict::import";
+"constant::BEGIN@3" -> "strict::import";
+"List::MoreUtils::XS::BEGIN@4" -> "strict::import";
+"JSON::BEGIN@4" -> "strict::import";
+"DBI::_firesafe::BEGIN@12" -> "strict::import";
+"version::regex::BEGIN@3" -> "strict::import";
+"attributes::BEGIN@9" -> "strict::import";
+"JSON::BEGIN@2" -> "JSON::XS::BEGIN@114";
+"main::NULL" -> "main::BEGIN@9";
+"DBD::Pg::dr::connect" -> "DBD::Pg::dr::CORE:match";
+"main::RUNTIME" -> "DBI::st::fetchrow_array";
+"main::BEGIN@9" -> "Time::HiRes::BEGIN@4";
+"DBI::BEGIN@177" -> "Carp::BEGIN@6";
+"DBI::BEGIN@177" -> "Carp::BEGIN@4";
+"Config::BEGIN@11" -> "vars::BEGIN@7";
+"DBD::Pg::BEGIN@19" -> "version::BEGIN@20";
+"Exporter::Tiny::_exporter_permitted_regexp" -> "Exporter::Tiny::CORE:sort";
+"main::BEGIN@5" -> "DBD::_::dr::BEGIN@1469";
+"main::BEGIN@7" -> "Data::Dumper::BEGIN@24";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@283";
+"Exporter::require_version" -> "Exporter::as_heavy";
+"Exporter::export_to_level" -> "Exporter::as_heavy";
+"Exporter::export" -> "Exporter::as_heavy";
+"Exporter::export_ok_tags" -> "Exporter::as_heavy";
+"Time::HiRes::import" -> "Exporter::Heavy::heavy_export_to_level";
+"JSON::import" -> "Exporter::Heavy::heavy_export_to_level";
+"main::BEGIN@8" -> "JSON::BEGIN@5";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@24";
+"DBD::Pg::BEGIN@19" -> "version::BEGIN@7";
+"JSON::BEGIN@2" -> "JSON::XS::BEGIN@104";
+"DynaLoader::BEGIN@21" -> "version::(cmp";
+"main::BEGIN@5" -> "DBI::BEGIN@1054";
+"main::NULL" -> "DBD::_mem::common::DESTROY";
+"main::RUNTIME" -> "DBD::_mem::common::DESTROY";
+"DBI::BEGIN@177" -> "Carp::BEGIN@568";
+"DBD::Pg::dr::connect" -> "DBI::_new_dbh";
+"strict::unimport" -> "strict::bits";
+"strict::import" -> "strict::bits";
+"JSON::_load_xs" -> "JSON::BEGIN@2";
+"main::BEGIN@7" -> "overload::BEGIN@114";
+"main::BEGIN@7" -> "Data::Dumper::BEGIN@12";
+"DBD::_::common::install_method" -> "DBD::_::common::CORE:match";
+"DBI::install_driver" -> "DBI::SQL_DOUBLE";
+"main::BEGIN@7" -> "Data::Dumper::BEGIN@731";
+"List::MoreUtils::BEGIN@13" -> "List::MoreUtils::XS::BEGIN@3";
+"main::RUNTIME" -> "main::CORE:open";
+"main::BEGIN@5" -> "List::Util::BEGIN@31";
+"JSON::BEGIN@6" -> "base::import";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@253";
+"DBI::install_driver" -> "DBD::Pg::BEGIN@19";
+"DBI::BEGIN@177" -> "Carp::BEGIN@3";
+"DBI::install_driver" -> "DBI::CORE:subst";
+"DBI::connect" -> "DBI::CORE:subst";
+"Carp::BEGIN@5" -> "warnings::CORE:regcomp";
+"main::BEGIN@7" -> "Data::Dumper::BEGIN@18";
+"main::RUNTIME" -> "DBI::connect";
+"base::__ANON__[base.pm:70]" -> "utf8::encode";
+"DBI::install_driver" -> "DBI::SQL_NUMERIC";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@170";
+"DBD::Pg::driver" -> "DBI::_new_drh";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@39";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@3";
+"main::BEGIN@8" -> "JSON::BEGIN@6";
+"overload::BEGIN@144" -> "warnings::register::import";
+"constant::BEGIN@4" -> "warnings::register::import";
+"vars::BEGIN@7" -> "warnings::register::import";
+"base::__ANON__[base.pm:70]" -> "base::CORE:subst";
+"Exporter::Heavy::heavy_export_to_level" -> "Exporter::export";
+"Exporter::import" -> "Exporter::export";
+"JSON::_load_xs" -> "JSON::Backend::XS::BEGIN@29";
+"DBI::_new_sth" -> "DBI::_new_handle";
+"DBI::_new_dbh" -> "DBI::_new_handle";
+"DBI::_new_drh" -> "DBI::_new_handle";
+"DBI::disconnect_all" -> "DBI::dr::disconnect_all";
+"Exporter::Tiny::__ANON__[Exporter/Tiny.pm:38]" -> "Exporter::Tiny::CORE:match";
+"Exporter::Tiny::_exporter_expand_sub" -> "Exporter::Tiny::CORE:match";
+"main::NULL" -> "main::BEGIN@5";
+"warnings::register_categories" -> "warnings::_mkMask";
+"DBI::install_driver" -> "DBD::Pg::driver";
+"DBD::Pg::driver" -> "version::(\"\"";
+"overload::BEGIN@83" -> "overloading::unimport";
+"overload::BEGIN@114" -> "overloading::unimport";
+"main::BEGIN@9" -> "DynaLoader::bootstrap";
+"List::MoreUtils::XS::BEGIN@10" -> "DynaLoader::bootstrap";
+"DBI::install_driver" -> "DynaLoader::bootstrap";
+"DBI::BEGIN@181" -> "DynaLoader::bootstrap";
+"main::BEGIN@5" -> "DBD::_::st::BEGIN@1856";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@13";
+"main::RUNTIME" -> "DBI::END";
+"main::BEGIN@11" -> "UNIVERSAL::can";
+"List::MoreUtils::XS::BEGIN@10" -> "UNIVERSAL::can";
+"Exporter::Tiny::_exporter_expand_sub" -> "UNIVERSAL::can";
+"attributes::import" -> "UNIVERSAL::can";
+"main::BEGIN@5" -> "Scalar::Util::BEGIN@9";
+"DynaLoader::bootstrap" -> "DynaLoader::dl_load_file";
+"List::MoreUtils::BEGIN@13" -> "List::MoreUtils::XS::BEGIN@5";
+"DBI::install_driver" -> "DBI::_firesafe::BEGIN@14";
+"DBI::install_driver" -> "DBD::Pg::BEGIN@23";
+"Data::Dumper::BEGIN@272" -> "constant::BEGIN@3";
+"List::MoreUtils::XS::BEGIN@10" -> "List::MoreUtils::BEGIN@7";
+"main::BEGIN@5" -> "DBI::BEGIN@179";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@8";
+"DBD::Pg::db::prepare" -> "DBD::Pg::st::_prepare";
+"main::BEGIN@5" -> "DBI::BEGIN@294";
+"JSON::BEGIN@6" -> "base::BEGIN@3";
+"DBD::Pg::BEGIN@19" -> "version::import";
+"DynaLoader::BEGIN@21" -> "Config::TIEHASH";
+"DBD::Pg::dr::connect" -> "DBD::Pg::db::_login";
+"constant::import" -> "constant::CORE:match";
+"DBD::Pg::db::prepare" -> "DBI::_new_sth";
+"DBI::END" -> "DBD::_::common::trace_msg";
+"Carp::BEGIN@4" -> "strict::CORE:regcomp";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@5.1";
+"DBI::BEGIN@178" -> "Config::FETCH";
+"main::NULL" -> "main::BEGIN@11";
+"Exporter::Heavy::heavy_export_to_level" -> "Exporter::Heavy::heavy_export";
+"Exporter::import" -> "Exporter::Heavy::heavy_export";
+"JSON::_load_xs" -> "JSON::Backend::XS::init";
+"List::MoreUtils::BEGIN@12" -> "Exporter::Tiny::BEGIN@3";
+"JSON::_load_xs" -> "JSON::Backend::XS::BEGIN@42";
+"JSON::XS::BEGIN@114" -> "Types::Serialiser::BEGIN@20";
+"Exporter::import" -> "Exporter::CORE:subst";
+"Exporter::as_heavy" -> "Exporter::CORE:subst";
+"DynaLoader::BEGIN@21" -> "Config::BEGIN@47";
+"main::BEGIN@8" -> "JSON::import";
+"JSON::BEGIN@2" -> "JSON::XS::BEGIN@1736";
+"main::BEGIN@5" -> "Scalar::Util::weaken";
+"DBI::install_driver" -> "DBI::SQL_BIGINT";
+"DBI::install_driver" -> "DBI::_firesafe::BEGIN@12";
+"JSON::_load_xs" -> "JSON::_set_module";
+"main::NULL" -> "JSON::XS::DESTROY";
+"main::BEGIN@11" -> "List::MoreUtils::BEGIN@4";
+"main::RUNTIME" -> "JSON::XS::decode";
+"DBI::BEGIN@177" -> "Carp::BEGIN@49";
+}

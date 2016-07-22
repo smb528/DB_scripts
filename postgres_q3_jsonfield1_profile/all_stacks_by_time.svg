@@ -1,0 +1,550 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" width="1200" height="162" onload="init(evt)" viewBox="0 0 1200 162" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples. -->
+<defs >
+	<linearGradient id="background" y1="0" y2="1" x1="0" x2="0" >
+		<stop stop-color="#eeeeee" offset="5%" />
+		<stop stop-color="#eeeeb0" offset="95%" />
+	</linearGradient>
+</defs>
+<style type="text/css">
+	.func_g:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+</style>
+<script type="text/ecmascript">
+<![CDATA[
+	var details, svg;
+	function init(evt) { 
+		details = document.getElementById("details").firstChild; 
+		svg = document.getElementsByTagName("svg")[0];
+		searching = 0;
+	}
+
+	// mouse-over for info
+	function s(info) { details.nodeValue = "sub " + info; }
+	function c() { details.nodeValue = ' '; }
+
+	// functions
+	function find_child(parent, name, attr) {
+		var children = parent.childNodes;
+		for (var i=0; i<children.length;i++) {
+			if (children[i].tagName == name)
+				return (attr != undefined) ? children[i].attributes[attr].value : children[i];
+		}
+		return;
+	}
+	function orig_save(e, attr, val) {
+		if (e.attributes["_orig_"+attr] != undefined) return;
+		if (e.attributes[attr] == undefined) return;
+		if (val == undefined) val = e.attributes[attr].value;
+		e.setAttribute("_orig_"+attr, val);
+	}
+	function orig_load(e, attr) {
+		if (e.attributes["_orig_"+attr] == undefined) return;
+		e.attributes[attr].value = e.attributes["_orig_"+attr].value;
+		e.removeAttribute("_orig_"+attr);
+	}
+	function update_text(e) {
+		var r = find_child(e, "rect");
+		var t = find_child(e, "text");
+		var w = parseFloat(r.attributes["width"].value) -3;
+		var txt = find_child(e, "title").textContent.replace(/\([^(]*\)/,"");
+		t.attributes["x"].value = parseFloat(r.attributes["x"].value) +3;
+		
+		// Smaller than this size won't fit anything
+		if (w < 2*12*0.59) {
+			t.textContent = "";
+			return;
+		}
+		
+		t.textContent = txt;
+		// Fit in full text width
+		if (/^ *$/.test(txt) || t.getSubStringLength(0, txt.length) < w)
+			return;
+		
+		for (var x=txt.length-2; x>0; x--) {
+			if (t.getSubStringLength(0, x+2) <= w) { 
+				t.textContent = txt.substring(0,x) + "..";
+				return;
+			}
+		}
+		t.textContent = "";
+	}
+
+	// zoom
+	function zoom_reset(e) {
+		if (e.attributes != undefined) {
+			orig_load(e, "x");
+			orig_load(e, "width");
+		}
+		if (e.childNodes == undefined) return;
+		for(var i=0, c=e.childNodes; i<c.length; i++) {
+			zoom_reset(c[i]);
+		}
+	}
+	function zoom_child(e, x, ratio) {
+		if (e.attributes != undefined) {
+			if (e.attributes["x"] != undefined) {
+				orig_save(e, "x");
+				e.attributes["x"].value = (parseFloat(e.attributes["x"].value) - x - 10) * ratio + 10;
+				if(e.tagName == "text") e.attributes["x"].value = find_child(e.parentNode, "rect", "x") + 3;
+			}
+			if (e.attributes["width"] != undefined) {
+				orig_save(e, "width");
+				e.attributes["width"].value = parseFloat(e.attributes["width"].value) * ratio;
+			}
+		}
+		
+		if (e.childNodes == undefined) return;
+		for(var i=0, c=e.childNodes; i<c.length; i++) {
+			zoom_child(c[i], x-10, ratio);
+		}
+	}
+	function zoom_parent(e) {
+		if (e.attributes) {
+			if (e.attributes["x"] != undefined) {
+				orig_save(e, "x");
+				e.attributes["x"].value = 10;
+			}
+			if (e.attributes["width"] != undefined) {
+				orig_save(e, "width");
+				e.attributes["width"].value = parseInt(svg.width.baseVal.value) - (10*2);
+			}
+		}
+		if (e.childNodes == undefined) return;
+		for(var i=0, c=e.childNodes; i<c.length; i++) {
+			zoom_parent(c[i]);
+		}
+	}
+	function zoom(node) { 
+		var attr = find_child(node, "rect").attributes;
+		var width = parseFloat(attr["width"].value);
+		var xmin = parseFloat(attr["x"].value);
+		var xmax = parseFloat(xmin + width);
+		var ymin = parseFloat(attr["y"].value);
+		var ratio = (svg.width.baseVal.value - 2*10) / width;
+		
+		// XXX: Workaround for JavaScript float issues (fix me)
+		var fudge = 0.0001;
+		
+		var unzoombtn = document.getElementById("unzoom");
+		unzoombtn.style["opacity"] = "1.0";
+		
+		var el = document.getElementsByTagName("g");
+		for(var i=0;i<el.length;i++){
+			var e = el[i];
+			var a = find_child(e, "rect").attributes;
+			var ex = parseFloat(a["x"].value);
+			var ew = parseFloat(a["width"].value);
+			// Is it an ancestor
+			if (0 == 0) {
+				var upstack = parseFloat(a["y"].value) > ymin;
+			} else {
+				var upstack = parseFloat(a["y"].value) < ymin;
+			}
+			if (upstack) {
+				// Direct ancestor
+				if (ex <= xmin && (ex+ew+fudge) >= xmax) {
+					e.style["opacity"] = "0.5";
+					zoom_parent(e);
+					e.onclick = function(e){unzoom(); zoom(this);};
+					update_text(e);
+				}
+				// not in current path
+				else
+					e.style["display"] = "none";
+			}
+			// Children maybe
+			else {
+				// no common path
+				if (ex < xmin || ex + fudge >= xmax) {
+					e.style["display"] = "none";
+				}
+				else {
+					zoom_child(e, xmin, ratio);
+					e.onclick = function(e){zoom(this);};
+					update_text(e);
+				}
+			}
+		}
+	}
+	function unzoom() {
+		var unzoombtn = document.getElementById("unzoom");
+		unzoombtn.style["opacity"] = "0.0";
+		
+		var el = document.getElementsByTagName("g");
+		for(i=0;i<el.length;i++) {
+			el[i].style["display"] = "block";
+			el[i].style["opacity"] = "1";
+			zoom_reset(el[i]);
+			update_text(el[i]);
+		}
+	}	
+
+	// search
+	function reset_search() {
+		var el = document.getElementsByTagName("rect");
+		for (var i=0; i < el.length; i++){
+			orig_load(el[i], "fill")
+		}
+	}
+	function search_prompt() {
+		if (!searching) {
+			var term = prompt("Enter a search term (regexp " +
+			    "allowed, eg: ^ext4_)", "");
+			if (term != null) {
+				search(term)
+			}
+		} else {
+			reset_search();
+			searching = 0;
+			var searchbtn = document.getElementById("search");
+			searchbtn.style["opacity"] = "0.1";
+			searchbtn.firstChild.nodeValue = "Search"
+		}
+	}
+	function search(term) {
+		var re = new RegExp(term);
+		var el = document.getElementsByTagName("g");
+		for (var i=0; i < el.length; i++){
+			var e = el[i];
+			if (e.attributes["class"].value == "func_g") {
+				// Scrape the function name from the onmouseover
+				// callback text. This is a little dirty.
+				var func = e.attributes["onmouseover"].value;
+				if (func != null) {
+					func = func.substr(3);
+					func = func.replace(/ .*/, "");
+					var r = find_child(e, "rect");
+					if (r == null) {
+						// the rect might be wrapped in an anchor
+						// if nameattr href is being used
+						if (r = find_child(e, "a")) {
+						    r = find_child(r, "rect");
+						}
+					}
+				}
+				if (func != null && r != null &&
+				    func.match(re)) {
+					orig_save(r, "fill");
+					r.attributes["fill"].value =
+					    "rgb(230,0,230)";
+					searching = 1;
+				}
+			}
+		}
+		if (searching) {
+			var searchbtn = document.getElementById("search");
+			searchbtn.style["opacity"] = "1.0";
+			searchbtn.firstChild.nodeValue = "Reset Search"
+		}
+	}
+	function searchover(e) {
+		var searchbtn = document.getElementById("search");
+		searchbtn.style["opacity"] = "1.0";
+	}
+	function searchout(e) {
+		var searchbtn = document.getElementById("search");
+		if (searching) {
+			searchbtn.style["opacity"] = "1.0";
+		} else {
+			searchbtn.style["opacity"] = "0.1";
+		}
+	}
+]]>
+</script>
+<rect x="0.0" y="0" width="1200.0" height="162.0" fill="url(#background)"  />
+<text text-anchor="middle" x="600.00" y="24" font-size="17" font-family="Verdana" fill="rgb(0,0,0)"  >Flame Graph</text>
+<text text-anchor="" x="10.00" y="145" font-size="12" font-family="Verdana" fill="rgb(0,0,0)" id="details" > </text>
+<text text-anchor="" x="10.00" y="24" font-size="12" font-family="Verdana" fill="rgb(0,0,0)" id="unzoom" onclick="unzoom()" style="opacity:0.0;cursor:pointer" >Reset Zoom</text>
+<text text-anchor="" x="1090.00" y="24" font-size="12" font-family="Verdana" fill="rgb(0,0,0)" id="search" onmouseover="searchover()" onmouseout="searchout()" onclick="search_prompt()" style="opacity:0.1;cursor:pointer" >Search</text>
+<g class="func_g" onmouseover="s('Exporter::Tiny::import (354 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Exporter::Tiny::import (354 microseconds, 0.01%)</title><a xlink:href="Exporter-Tiny-pm-37-line.html#41" target="_top"><rect x="889.2" y="81" width="0.1" height="15.0" fill="rgb(238,94,36)" rx="2" ry="2" />
+<text text-anchor="" x="892.19" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::CORE:close (1,900 microseconds, 0.06%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::CORE:close (1,900 microseconds, 0.06%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#main__CORE_close" target="_top"><rect x="935.4" y="97" width="0.8" height="15.0" fill="rgb(245,83,44)" rx="2" ry="2" />
+<text text-anchor="" x="938.45" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('JSON::XS::BEGIN@114 (771 microseconds, 0.02%)')" onmouseout="c()" onclick="zoom(this)">
+<title>JSON::XS::BEGIN@114 (771 microseconds, 0.02%)</title><a xlink:href="JSON-XS-pm-27-line.html#114" target="_top"><rect x="934.0" y="49" width="0.3" height="15.0" fill="rgb(245,145,44)" rx="2" ry="2" />
+<text text-anchor="" x="937.04" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Exporter::Heavy::heavy_export (368 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Exporter::Heavy::heavy_export (368 microseconds, 0.01%)</title><a xlink:href="Exporter-Heavy-pm-13-line.html#25" target="_top"><rect x="30.2" y="33" width="0.2" height="15.0" fill="rgb(238,94,36)" rx="2" ry="2" />
+<text text-anchor="" x="33.24" y="43.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::db::_login (20,506 microseconds, 0.66%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::db::_login (20,506 microseconds, 0.66%)</title><a xlink:href="DBD-Pg-pm-43-line.html#DBD__Pg__db___login" target="_top"><rect x="11.9" y="33" width="7.8" height="15.0" fill="rgb(243,140,42)" rx="2" ry="2" />
+<text text-anchor="" x="14.94" y="43.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::BEGIN@7 (7,476 microseconds, 0.24%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::BEGIN@7 (7,476 microseconds, 0.24%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#7" target="_top"><rect x="924.8" y="97" width="2.8" height="15.0" fill="rgb(232,83,29)" rx="2" ry="2" />
+<text text-anchor="" x="927.79" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::st::fetchrow_array (227,040 microseconds, 7.28%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::st::fetchrow_array (227,040 microseconds, 7.28%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#DBI__st__fetchrow_array" target="_top"><rect x="801.2" y="97" width="85.9" height="15.0" fill="rgb(239,162,37)" rx="2" ry="2" />
+<text text-anchor="" x="804.22" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >DBI::st::f..</text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::dr::connect (20,662 microseconds, 0.66%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::dr::connect (20,662 microseconds, 0.66%)</title><a xlink:href="DBD-Pg-pm-43-line.html#208" target="_top"><rect x="11.9" y="49" width="7.8" height="15.0" fill="rgb(241,140,39)" rx="2" ry="2" />
+<text text-anchor="" x="14.90" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('JSON::XS::BEGIN@104 (296 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>JSON::XS::BEGIN@104 (296 microseconds, 0.01%)</title><a xlink:href="JSON-XS-pm-27-line.html#104" target="_top"><rect x="933.9" y="49" width="0.1" height="15.0" fill="rgb(246,145,45)" rx="2" ry="2" />
+<text text-anchor="" x="936.90" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::BEGIN@9 (888 microseconds, 0.03%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::BEGIN@9 (888 microseconds, 0.03%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#9" target="_top"><rect x="935.1" y="97" width="0.3" height="15.0" fill="rgb(228,83,26)" rx="2" ry="2" />
+<text text-anchor="" x="938.11" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::CORE:print (1,129 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::CORE:print (1,129 microseconds, 0.04%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#main__CORE_print" target="_top"><rect x="936.9" y="97" width="0.4" height="15.0" fill="rgb(238,83,36)" rx="2" ry="2" />
+<text text-anchor="" x="939.88" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::_new_sth (647 microseconds, 0.02%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::_new_sth (647 microseconds, 0.02%)</title><a xlink:href="DBI-pm-2-line.html#1299" target="_top"><rect x="32.6" y="65" width="0.2" height="15.0" fill="rgb(236,162,34)" rx="2" ry="2" />
+<text text-anchor="" x="35.58" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::driver (611 microseconds, 0.02%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::driver (611 microseconds, 0.02%)</title><a xlink:href="DBD-Pg-pm-43-line.html#112" target="_top"><rect x="30.4" y="65" width="0.2" height="15.0" fill="rgb(238,140,37)" rx="2" ry="2" />
+<text text-anchor="" x="33.41" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::_new_handle (409 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::_new_handle (409 microseconds, 0.01%)</title><a xlink:href="DBI-pm-2-line.html#DBI___new_handle" target="_top"><rect x="32.7" y="49" width="0.1" height="15.0" fill="rgb(240,162,39)" rx="2" ry="2" />
+<text text-anchor="" x="35.67" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('JSON::BEGIN@6 (1,016 microseconds, 0.03%)')" onmouseout="c()" onclick="zoom(this)">
+<title>JSON::BEGIN@6 (1,016 microseconds, 0.03%)</title><a xlink:href="JSON-pm-23-line.html#6" target="_top"><rect x="932.5" y="81" width="0.4" height="15.0" fill="rgb(233,145,31)" rx="2" ry="2" />
+<text text-anchor="" x="935.53" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::db::prepare (1,011 microseconds, 0.03%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::db::prepare (1,011 microseconds, 0.03%)</title><a xlink:href="DBD-Pg-pm-43-line.html#267" target="_top"><rect x="32.4" y="81" width="0.4" height="15.0" fill="rgb(248,140,47)" rx="2" ry="2" />
+<text text-anchor="" x="35.44" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('List::MoreUtils::XS::BEGIN@1 (2,201 microseconds, 0.07%)')" onmouseout="c()" onclick="zoom(this)">
+<title>List::MoreUtils::XS::BEGIN@1 (2,201 microseconds, 0.07%)</title><a xlink:href="(eval 10)[List-MoreUtils-XS-pm-40]-40-line.html#1" target="_top"><rect x="894.5" y="49" width="0.8" height="15.0" fill="rgb(225,129,22)" rx="2" ry="2" />
+<text text-anchor="" x="897.47" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::BEGIN@19 (1,227 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::BEGIN@19 (1,227 microseconds, 0.04%)</title><a xlink:href="DBD-Pg-pm-43-line.html#19" target="_top"><rect x="26.9" y="65" width="0.4" height="15.0" fill="rgb(234,140,32)" rx="2" ry="2" />
+<text text-anchor="" x="29.86" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::install_driver (33,459 microseconds, 1.07%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::install_driver (33,459 microseconds, 1.07%)</title><a xlink:href="DBI-pm-2-line.html#774" target="_top"><rect x="19.7" y="81" width="12.7" height="15.0" fill="rgb(238,162,37)" rx="2" ry="2" />
+<text text-anchor="" x="22.72" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Data::Dumper::BEGIN@272 (1,932 microseconds, 0.06%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Data::Dumper::BEGIN@272 (1,932 microseconds, 0.06%)</title><a xlink:href="Data-Dumper-pm-18-line.html#272" target="_top"><rect x="926.6" y="81" width="0.7" height="15.0" fill="rgb(253,94,53)" rx="2" ry="2" />
+<text text-anchor="" x="929.61" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DynaLoader::dl_load_file (3,743 microseconds, 0.12%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DynaLoader::dl_load_file (3,743 microseconds, 0.12%)</title><a xlink:href="DynaLoader-pm-9-line.html#DynaLoader__dl_load_file" target="_top"><rect x="30.9" y="49" width="1.4" height="15.0" fill="rgb(237,159,35)" rx="2" ry="2" />
+<text text-anchor="" x="33.90" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('List::MoreUtils::BEGIN@13 (3,571 microseconds, 0.11%)')" onmouseout="c()" onclick="zoom(this)">
+<title>List::MoreUtils::BEGIN@13 (3,571 microseconds, 0.11%)</title><a xlink:href="List-MoreUtils-pm-36-line.html#13" target="_top"><rect x="894.0" y="81" width="1.4" height="15.0" fill="rgb(244,129,43)" rx="2" ry="2" />
+<text text-anchor="" x="897.02" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('JSON::_load_xs (5,668 microseconds, 0.18%)')" onmouseout="c()" onclick="zoom(this)">
+<title>JSON::_load_xs (5,668 microseconds, 0.18%)</title><a xlink:href="JSON-pm-23-line.html#244" target="_top"><rect x="932.9" y="81" width="2.2" height="15.0" fill="rgb(227,145,24)" rx="2" ry="2" />
+<text text-anchor="" x="935.93" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Carp::BEGIN@4 (341 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Carp::BEGIN@4 (341 microseconds, 0.01%)</title><a xlink:href="Carp-pm-4-line.html#4" target="_top"><rect x="919.0" y="65" width="0.1" height="15.0" fill="rgb(237,109,35)" rx="2" ry="2" />
+<text text-anchor="" x="922.01" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::BEGIN@181 (1,970 microseconds, 0.06%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::BEGIN@181 (1,970 microseconds, 0.06%)</title><a xlink:href="DBI-pm-2-line.html#181" target="_top"><rect x="920.9" y="81" width="0.8" height="15.0" fill="rgb(237,162,35)" rx="2" ry="2" />
+<text text-anchor="" x="923.94" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DynaLoader::bootstrap (4,291 microseconds, 0.14%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DynaLoader::bootstrap (4,291 microseconds, 0.14%)</title><a xlink:href="DynaLoader-pm-9-line.html#104" target="_top"><rect x="30.7" y="65" width="1.6" height="15.0" fill="rgb(237,159,35)" rx="2" ry="2" />
+<text text-anchor="" x="33.70" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::_::common::install_method (447 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::_::common::install_method (447 microseconds, 0.01%)</title><a xlink:href="DBI-pm-2-line.html#1388" target="_top"><rect x="30.5" y="49" width="0.1" height="15.0" fill="rgb(248,140,47)" rx="2" ry="2" />
+<text text-anchor="" x="33.46" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('XSLoader::load (7,570 microseconds, 0.24%)')" onmouseout="c()" onclick="zoom(this)">
+<title>XSLoader::load (7,570 microseconds, 0.24%)</title><a xlink:href="XSLoader-pm-30-line.html#17" target="_top"><rect x="921.9" y="81" width="2.9" height="15.0" fill="rgb(243,122,41)" rx="2" ry="2" />
+<text text-anchor="" x="924.91" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('List::MoreUtils::BEGIN@12 (12,412 microseconds, 0.40%)')" onmouseout="c()" onclick="zoom(this)">
+<title>List::MoreUtils::BEGIN@12 (12,412 microseconds, 0.40%)</title><a xlink:href="List-MoreUtils-pm-36-line.html#12" target="_top"><rect x="889.3" y="81" width="4.7" height="15.0" fill="rgb(246,129,45)" rx="2" ry="2" />
+<text text-anchor="" x="892.33" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::__ANON__[/usr/local/lib/x86_64-linux-gnu/perl/5.20.2/DBI.pm:751] (20,737 microseconds, 0.66%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::__ANON__[/usr/local/lib/x86_64-linux-gnu/perl/5.20.2/DBI.pm:751] (20,737 microseconds, 0.66%)</title><a xlink:href="DBI-pm-2-line.html#677" target="_top"><rect x="11.9" y="81" width="7.8" height="15.0" fill="rgb(240,162,39)" rx="2" ry="2" />
+<text text-anchor="" x="14.87" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Config::BEGIN@11 (724 microseconds, 0.02%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Config::BEGIN@11 (724 microseconds, 0.02%)</title><a xlink:href="Config-pm-10-line.html#11" target="_top"><rect x="920.6" y="49" width="0.3" height="15.0" fill="rgb(231,162,28)" rx="2" ry="2" />
+<text text-anchor="" x="923.64" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::BEGIN@5 (77,594 microseconds, 2.49%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::BEGIN@5 (77,594 microseconds, 2.49%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#5" target="_top"><rect x="895.4" y="97" width="29.4" height="15.0" fill="rgb(235,83,33)" rx="2" ry="2" />
+<text text-anchor="" x="898.42" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >ma..</text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::connect (54,291 microseconds, 1.74%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::connect (54,291 microseconds, 1.74%)</title><a xlink:href="DBI-pm-2-line.html#597" target="_top"><rect x="11.8" y="97" width="20.6" height="15.0" fill="rgb(241,162,39)" rx="2" ry="2" />
+<text text-anchor="" x="14.83" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::BEGIN@177 (21,190 microseconds, 0.68%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::BEGIN@177 (21,190 microseconds, 0.68%)</title><a xlink:href="DBI-pm-2-line.html#177" target="_top"><rect x="911.9" y="81" width="8.0" height="15.0" fill="rgb(245,162,44)" rx="2" ry="2" />
+<text text-anchor="" x="914.90" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::BEGIN@10 (1,112 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::BEGIN@10 (1,112 microseconds, 0.04%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#10" target="_top"><rect x="887.3" y="97" width="0.4" height="15.0" fill="rgb(232,83,30)" rx="2" ry="2" />
+<text text-anchor="" x="890.26" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::BEGIN@8 (19,818 microseconds, 0.64%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::BEGIN@8 (19,818 microseconds, 0.64%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#8" target="_top"><rect x="927.6" y="97" width="7.5" height="15.0" fill="rgb(230,83,28)" rx="2" ry="2" />
+<text text-anchor="" x="930.62" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('overload::BEGIN@83 (348 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>overload::BEGIN@83 (348 microseconds, 0.01%)</title><a xlink:href="overload-pm-21-line.html#83" target="_top"><rect x="927.5" y="81" width="0.1" height="15.0" fill="rgb(249,165,48)" rx="2" ry="2" />
+<text text-anchor="" x="930.48" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DynaLoader::BEGIN@92 (944 microseconds, 0.03%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DynaLoader::BEGIN@92 (944 microseconds, 0.03%)</title><a xlink:href="JSON-XS-pm-27-line.html#92" target="_top"><rect x="934.4" y="33" width="0.4" height="15.0" fill="rgb(250,159,49)" rx="2" ry="2" />
+<text text-anchor="" x="937.43" y="43.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::dr::connect (20,672 microseconds, 0.66%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::dr::connect (20,672 microseconds, 0.66%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#DBI__dr__connect" target="_top"><rect x="11.9" y="65" width="7.8" height="15.0" fill="rgb(241,162,39)" rx="2" ry="2" />
+<text text-anchor="" x="14.89" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('XSLoader::load (1,185 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>XSLoader::load (1,185 microseconds, 0.04%)</title><a xlink:href="XSLoader-pm-30-line.html#17" target="_top"><rect x="934.3" y="49" width="0.5" height="15.0" fill="rgb(243,122,41)" rx="2" ry="2" />
+<text text-anchor="" x="937.34" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('JSON::BEGIN@2 (3,576 microseconds, 0.11%)')" onmouseout="c()" onclick="zoom(this)">
+<title>JSON::BEGIN@2 (3,576 microseconds, 0.11%)</title><a xlink:href="(eval 6)[JSON-pm-253]-26-line.html#2" target="_top"><rect x="933.4" y="65" width="1.4" height="15.0" fill="rgb(240,145,39)" rx="2" ry="2" />
+<text text-anchor="" x="936.44" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Exporter::export_ok_tags (1,356 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Exporter::export_ok_tags (1,356 microseconds, 0.04%)</title><a xlink:href="Exporter-pm-8-line.html#88" target="_top"><rect x="921.2" y="65" width="0.5" height="15.0" fill="rgb(241,94,39)" rx="2" ry="2" />
+<text text-anchor="" x="924.17" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::bootstrap (381 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::bootstrap (381 microseconds, 0.01%)</title><a xlink:href="DBD-Pg-pm-43-line.html#DBD__Pg__bootstrap" target="_top"><rect x="30.7" y="49" width="0.2" height="15.0" fill="rgb(237,140,35)" rx="2" ry="2" />
+<text text-anchor="" x="33.74" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::db::prepare (1,181 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::db::prepare (1,181 microseconds, 0.04%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#DBI__db__prepare" target="_top"><rect x="32.4" y="97" width="0.4" height="15.0" fill="rgb(248,162,47)" rx="2" ry="2" />
+<text text-anchor="" x="35.37" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Exporter::import (8,009 microseconds, 0.26%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Exporter::import (8,009 microseconds, 0.26%)</title><a xlink:href="Exporter-pm-8-line.html#28" target="_top"><rect x="27.4" y="49" width="3.0" height="15.0" fill="rgb(238,94,36)" rx="2" ry="2" />
+<text text-anchor="" x="30.36" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::common::DESTROY (4,739 microseconds, 0.15%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::common::DESTROY (4,739 microseconds, 0.15%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#DBI__common__DESTROY" target="_top"><rect x="10.0" y="97" width="1.8" height="15.0" fill="rgb(230,162,27)" rx="2" ry="2" />
+<text text-anchor="" x="13.04" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::CORE:open (1,894 microseconds, 0.06%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::CORE:open (1,894 microseconds, 0.06%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#main__CORE_open" target="_top"><rect x="936.2" y="97" width="0.7" height="15.0" fill="rgb(250,83,49)" rx="2" ry="2" />
+<text text-anchor="" x="939.17" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Exporter::as_heavy (1,351 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Exporter::as_heavy (1,351 microseconds, 0.04%)</title><a xlink:href="Exporter-pm-8-line.html#15" target="_top"><rect x="921.2" y="49" width="0.5" height="15.0" fill="rgb(243,94,42)" rx="2" ry="2" />
+<text text-anchor="" x="924.18" y="59.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::st::execute (2,031,081 microseconds, 65.12%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::st::execute (2,031,081 microseconds, 65.12%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#DBI__st__execute" target="_top"><rect x="32.8" y="97" width="768.4" height="15.0" fill="rgb(240,162,38)" rx="2" ry="2" />
+<text text-anchor="" x="35.82" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  >DBI::st::execute</text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('List::MoreUtils::XS::BEGIN@10 (3,166 microseconds, 0.10%)')" onmouseout="c()" onclick="zoom(this)">
+<title>List::MoreUtils::XS::BEGIN@10 (3,166 microseconds, 0.10%)</title><a xlink:href="List-MoreUtils-XS-pm-38-line.html#10" target="_top"><rect x="894.1" y="65" width="1.2" height="15.0" fill="rgb(232,129,30)" rx="2" ry="2" />
+<text text-anchor="" x="897.14" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBD::Pg::db::BEGIN@258 (8,023 microseconds, 0.26%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBD::Pg::db::BEGIN@258 (8,023 microseconds, 0.26%)</title><a xlink:href="DBD-Pg-pm-43-line.html#258" target="_top"><rect x="27.4" y="65" width="3.0" height="15.0" fill="rgb(233,140,31)" rx="2" ry="2" />
+<text text-anchor="" x="30.35" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('all (3,119,039 microseconds, 100%)')" onmouseout="c()" onclick="zoom(this)">
+<title>all (3,119,039 microseconds, 100%)</title><rect x="10.0" y="113" width="1180.0" height="15.0" fill="rgb(255,230,55)" rx="2" ry="2" />
+<text text-anchor="" x="13.00" y="123.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</g>
+<g class="func_g" onmouseover="s('JSON::CORE:readline (501 microseconds, 0.02%)')" onmouseout="c()" onclick="zoom(this)">
+<title>JSON::CORE:readline (501 microseconds, 0.02%)</title><a xlink:href="JSON-pm-23-line.html#JSON__CORE_readline" target="_top"><rect x="934.9" y="65" width="0.1" height="15.0" fill="rgb(246,145,46)" rx="2" ry="2" />
+<text text-anchor="" x="937.86" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DynaLoader::BEGIN@21 (1,367 microseconds, 0.04%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DynaLoader::BEGIN@21 (1,367 microseconds, 0.04%)</title><a xlink:href="DynaLoader-pm-9-line.html#21" target="_top"><rect x="920.4" y="65" width="0.5" height="15.0" fill="rgb(229,159,27)" rx="2" ry="2" />
+<text text-anchor="" x="923.42" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DBI::BEGIN@178 (2,717 microseconds, 0.09%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DBI::BEGIN@178 (2,717 microseconds, 0.09%)</title><a xlink:href="DBI-pm-2-line.html#178" target="_top"><rect x="919.9" y="81" width="1.0" height="15.0" fill="rgb(243,162,42)" rx="2" ry="2" />
+<text text-anchor="" x="922.91" y="91.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('main::BEGIN@11 (20,464 microseconds, 0.66%)')" onmouseout="c()" onclick="zoom(this)">
+<title>main::BEGIN@11 (20,464 microseconds, 0.66%)</title><a xlink:href="postgres_query3_jsonfield1-pl-1-line.html#11" target="_top"><rect x="887.7" y="97" width="7.7" height="15.0" fill="rgb(231,83,28)" rx="2" ry="2" />
+<text text-anchor="" x="890.68" y="107.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('Carp::BEGIN@5 (1,813 microseconds, 0.06%)')" onmouseout="c()" onclick="zoom(this)">
+<title>Carp::BEGIN@5 (1,813 microseconds, 0.06%)</title><a xlink:href="Carp-pm-4-line.html#5" target="_top"><rect x="919.2" y="65" width="0.6" height="15.0" fill="rgb(235,109,33)" rx="2" ry="2" />
+<text text-anchor="" x="922.16" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+<g class="func_g" onmouseover="s('DynaLoader::bootstrap (365 microseconds, 0.01%)')" onmouseout="c()" onclick="zoom(this)">
+<title>DynaLoader::bootstrap (365 microseconds, 0.01%)</title><a xlink:href="DynaLoader-pm-9-line.html#104" target="_top"><rect x="921.0" y="65" width="0.2" height="15.0" fill="rgb(237,159,35)" rx="2" ry="2" />
+<text text-anchor="" x="924.02" y="75.5" font-size="12" font-family="Verdana" fill="rgb(0,0,0)"  ></text>
+</a>
+</g>
+</svg>
