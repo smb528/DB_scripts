@@ -15,7 +15,7 @@ our ($opt_H, $opt_D, $opt_p, $opt_m, $opt_c, $opt_n, $opt_f, $opt_l, $opt_s);
 getopts('H:D:p:m:n:f:c:l:s:');
 
 if (!$opt_H || !$opt_D || !$opt_p || !$opt_m || !$opt_n || !$opt_f || (!$opt_c && !$opt_l)) {
-    die "Must provide options -H (hostname), -D (database name), -p (db user password), -m (protocol name), -n (num reps), -f (out filename), -c (num markers to select 'all' for all markers), -l (OPTIONAL: list of markers to search over. Overrides -c), -s (OPTIONAL: threshold for reporting as a rare allele. default is 0.10 ) \n";
+    die "Must provide options -H (hostname), -D (database name), -p (db user password), -m (protocol name), -n (num reps), -f (out filename), -c (num markers to select 'all' for all markers), -l (OPTIONAL: list of markers to search over. Overrides -c), -s (OPTIONAL: threshold for reporting as a rare allele. default is 0.05 ) \n";
 }
 
 my $dbhost = $opt_H;
@@ -25,7 +25,7 @@ my $protocol_name = $opt_m;
 my $num_markers = $opt_c;
 my $num_reps = $opt_n;
 my $out_file = $opt_f;
-my $threshold = $opt_s || 0.10;
+my $threshold = $opt_s || 0.05;
 my @selected_markers;
 if ($opt_l) {
     @selected_markers = split /,/, $opt_l;
