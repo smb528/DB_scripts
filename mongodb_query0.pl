@@ -35,53 +35,36 @@ print $fh "Stock ID, Number Mutations, Time\n";
 my $json = JSON->new();
 
 for (1..$num_reps) {
-   my $n_start = Time::HiRes::time();
 
     my $cursor = $genotype_collection->find({protocol_name => $protocol_name});
 
+    my %accession_mutations;
+
     while(my $row = $cursor->next){
 
-        my $marker_scores = $row->{'marker_scores'};
-        my $stock_id = $row->{'stock_id'};
+        my $marker_score = $row->{'marker_score'};
+        my $accession_name = $row->{'accession_name'};
+        #print Dumper $marker_score;
 
         my $mutations_count = 1;
         #my $ref_count = 1;
         #my $bad_quality = 1;
 
-        my $json_value = $json->decode($marker_scores);
-        #print Dumper $json_value;
+        my $GT = $marker_score->{'GT'};
+        #print $GT."\n";
 
-        foreach my $marker (keys %$json_value) {
-          my $GT = $json_value->{$marker}->{'GT'};
-          #my $GQ = $json_value->{$marker}->{'GQ'};
-
-          if ($GT ne '0/0' && $GT ne './.') {
-            $mutations_count++;
-          }
-          #else {
-            #$ref_count++;
-          #}
-
-      #if ($GQ > 90) {
-    	#    if ($GT ne '0/0') {
-    	#	$mutations_count++;
-    	#    } else {
-    	#	$ref_count++;
-    	#    }
-    	#} else {
-    	#    $bad_quality++;
-    	#}
+        if ($GT ne '0/0' && $GT ne './.') {
+            $accession_mutations{$accession_name}++;
         }
 
-        #print "BAD COUNT: ".$bad_quality."\n";
-        #print "MUTATIONS COUNT: ".$mutations_count."\n";
-        #print "REF COUNT: ".$ref_count."\n\n";
-        my $n_end = Time::HiRes::time();
-        my $n_duration = $n_end - $n_start;
-        #print "T: ".$n_duration."\n";
+    }
+    #print Dumper \%accession_mutations;
 
-        print $fh "$stock_id, $mutations_count, $n_duration\n";
-
+    #print "BAD COUNT: ".$bad_quality."\n";
+    #print "MUTATIONS COUNT: ".$mutations_count."\n";
+    #print "REF COUNT: ".$ref_count."\n\n";
+    foreach my $accession_name (keys %accession_mutations) {
+      print $fh "$accession_name, $accession_mutations{$accession_name}\n";
     }
 }
 

@@ -45,10 +45,8 @@ if (!$opt_l) {
     my $protocol_cursor = $protocol_collection->find({protocol_name => $protocol_name});
 
     while(my $row = $protocol_cursor->next){
-        my $protocol_string = $json->decode($row->{'markers'} );
-        foreach my $marker (keys %$protocol_string) {
-            push @marker_names, $marker;
-        }
+        my $marker = $row->{'marker_name'};
+        push @marker_names, $marker;
     }
 }
 
@@ -61,33 +59,39 @@ for (1..$num_reps) {
             push @selected_markers, $marker_names[int rand(scalar(@marker_names))];
         }
     }
+    my %selected_markers_hash = map { $_ => 1 } @selected_markers;
 
     my $n_start = Time::HiRes::time();
 
     my $protocol_cursor = $genotype_collection->find({protocol_name => $protocol_name});
 
     my @accessions_with_mutations;
+    my %accessions_hash;
     while(my $row = $protocol_cursor->next){
 
-        my $json_value = $json->decode($row->{'marker_scores'});
-        #print Dumper $json_value;
+        my $accession_name = $row->{'accession_name'};
+        my $marker_score = $row->{'marker_score'};
+        my $marker_name = $row->{'marker_name'};
 
         my $mutations_count=0;
-        foreach my $marker (@selected_markers) {
-            my $GT = $json_value->{$marker}->{'GT'};
-            #my $GQ = $json_value->{$marker}->{'GQ'};
-            #print $genotype_id."  ".$marker."  ".$GT."\n";
+        my $GT = $marker_score->{'GT'};
 
-            if ($GT ne '0/0' && $GT ne './.') {
-                #print $GT."\n";
-                $mutations_count++;
-           }
-       }
+        if ($GT ne '0/0' && $GT ne './.' && exists($selected_markers_hash{$marker_name} ) ) {
+            if (exists($accessions_hash{$accession_name}) ) {
+                push @{ $accessions_hash{$accession_name} }, $marker_name;
+            }
+            else {
+                $accessions_hash{$accession_name}[0] = $marker_name;
+            }
+        }
+    }
+    #print Dumper \%accessions_hash;
 
-       if ($mutations_count == scalar(@selected_markers)) {
-           push @accessions_with_mutations, $row->{'stock_id'};
-       }
-   }
+    foreach my $accession (keys %accessions_hash) {
+        if (scalar( @{ $accessions_hash{$accession} } ) == scalar(@selected_markers)) {
+            push @accessions_with_mutations, $accession;
+        }
+    }
 
    #print Dumper \@accessions_with_mutations;
    #print join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\n";
