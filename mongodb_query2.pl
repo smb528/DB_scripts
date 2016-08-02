@@ -30,10 +30,12 @@ my $db = $client-> get_database($dbname);
 my $genotype_collection = $db->get_collection('genotype_collection');
 my $protocol_collection = $db->get_collection('protocol_collection');
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Mutations, Time\n";
+print $fh "Run, Stock ID and Number Mutations, Time\n";
 
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
+    my $n_start = Time::HiRes::time();
+
     #get json string for protocolprop and genotypeprop for an individual stock that was genotyped using the given protocol name
     #my $sth = db.genotype_collection.aggregate([
     #    {"$unwind": "protocol_collection" },
@@ -100,9 +102,12 @@ for (1..$num_reps) {
         }
     }
 
-    foreach my $accession (keys %accession_deletions) {
-        print $fh "$accession, $accession_deletions{$accession}\n";
-    }
+    my $n_end = Time::HiRes::time();
+    my $n_duration = $n_end-$n_start;
+    #foreach my $accession (keys %accession_deletions) {
+    #    print $fh "$accession, $accession_deletions{$accession}\n";
+    #}
+    print $fh "$run,".Dumper $accession_deletions.",$n_duration\n";
 }
 close $fh;
 

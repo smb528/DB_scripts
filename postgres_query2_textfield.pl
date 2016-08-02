@@ -35,14 +35,13 @@ my $password = $dbpass;
 my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::errstr;
 		       print "Opened database successfully\n";
 open(my $fh, '>', $out_file);
-print $fh "Genotype ID, Number Deletions, Time\n";
+print $fh "Run, Genotype ID, Number Deletions, Time\n";
 
 
 
 my $json = JSON->new();
 
-for (1..$num_reps) {
-    my $n_start = Time::HiRes::time();
+for my $run (1..$num_reps) {
 
     #first get protocolprop because it is the same across all genotypes
     my $sth_protocol = $dbh->prepare('select nd_protocolprop.value from nd_protocol join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ');
@@ -60,6 +59,7 @@ for (1..$num_reps) {
     $sth->execute($protocol_name);
 
     while(my ($genotype_json, $genotype_id) = $sth->fetchrow_array){
+        my $n_start = Time::HiRes::time();
 
         my $deletion_count = 0;
 
@@ -116,7 +116,7 @@ for (1..$num_reps) {
         my $n_duration = $n_end - $n_start;
         #print "T: ".$n_duration."\n";
 
-        print $fh "$genotype_id, $deletion_count, $n_duration\n";
+        print $fh "$run, $genotype_id, $deletion_count, $n_duration\n";
     }
 
     #print Dumper \%unique_alts;

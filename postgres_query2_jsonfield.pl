@@ -35,12 +35,11 @@ my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::
 print "Opened database successfully\n";
 
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Deletions, Time\n";
+print $fh "Run, Stock ID, Number Deletions, Time\n";
 my $start = Time::HiRes::time();
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
 
-    my $n_start = Time::HiRes::time();
     #Get List of all Stocks that were genotyped using the protocol given.
     my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
         #or die "Couldn't prepare statement: " . $dbh->errstr;
@@ -64,6 +63,7 @@ for (1..$num_reps) {
 
     #Loop over the list of stocks that we found.
     while (my $stock_id = $sth_stock->fetchrow_array) {
+        my $n_start = Time::HiRes::time();
 
         my $deletion_count = 0;
 
@@ -95,7 +95,7 @@ for (1..$num_reps) {
         my $n_duration = $n_end - $n_start;
         #print "T: ".$n_duration."\n";
 
-        print $fh "$stock_id, $deletion_count, $n_duration\n";
+        print $fh "$run, $stock_id, $deletion_count, $n_duration\n";
     }
 
 }

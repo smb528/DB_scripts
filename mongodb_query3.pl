@@ -36,7 +36,7 @@ my $db = $client-> get_database($dbname);
 my $genotype_collection = $db->get_collection('genotype_collection');
 my $protocol_collection = $db->get_collection('protocol_collection');
 open(my $fh, '>', $out_file);
-print $fh "Result\tTime\n";
+print $fh "Run\tResult\tTime\n";
 
 my $json = JSON->new();
 
@@ -50,7 +50,7 @@ if (!$opt_l) {
     }
 }
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
 
     if (!$opt_l) {
         @selected_markers = ();
@@ -98,7 +98,7 @@ for (1..$num_reps) {
    my $n_end = Time::HiRes::time();
    my $n_duration = $n_end - $n_start;
 
-   print $fh  join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\t".$n_duration."\n";
+   print $fh  $run."\t".join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\t".$n_duration."\n";
 
 }
 

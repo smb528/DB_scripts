@@ -30,11 +30,12 @@ my $db = $client-> get_database($dbname);
 my $genotype_collection = $db->get_collection('genotype_collection');
 
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Mutations, Time\n";
+print $fh "Run, Stock ID, Number Mutations, Time\n";
 
 my $json = JSON->new();
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
+    my $n_start = Time::HiRes::time();
 
     my $cursor = $genotype_collection->find({protocol_name => $protocol_name});
 
@@ -63,9 +64,13 @@ for (1..$num_reps) {
     #print "BAD COUNT: ".$bad_quality."\n";
     #print "MUTATIONS COUNT: ".$mutations_count."\n";
     #print "REF COUNT: ".$ref_count."\n\n";
-    foreach my $accession_name (keys %accession_mutations) {
-      print $fh "$accession_name, $accession_mutations{$accession_name}\n";
-    }
+    my $n_end = Time::HiRes::time();
+    my $n_duration = $n_end-$n_start;
+    #foreach my $accession_name (keys %accession_mutations) {
+    #  print $fh "$run, $accession_name, $accession_mutations{$accession_name}, $n_duration\n";
+    #}
+    print $fh "$run,".Dumper \%accession_mutations.",$n_duration\n";
+
 }
 
 close $fh;

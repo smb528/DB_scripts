@@ -35,19 +35,19 @@ my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::
 		       print "Opened database successfully\n";
 
 open(my $fh, '>', $out_file);
-print $fh "Genotype ID, Number Mutations, Time\n";
+print $fh "Run, Accession, Mutation Count, Time\n";
 
 my $json = JSON->new();
 
-for (1..$num_reps) {
-   my $n_start = Time::HiRes::time();
+for my $run (1..$num_reps) {
 
     my $sth = $dbh->prepare("select genotypeprop.value, genotype.genotype_id from nd_experiment join nd_experiment_genotype using(nd_experiment_id) join genotype using(genotype_id) join genotypeprop using(genotype_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
-        #or die "Couldn't prepare statement: " . $dbh->errstr;
 
+    #or die "Couldn't prepare statement: " . $dbh->errstr;
     $sth->execute($protocol_name);
 
     while(my ($genotypeprop, $genotype_id)=$sth->fetchrow_array){
+        my $n_start = Time::HiRes::time();
 
         my $mutations_count = 1;
         #my $ref_count = 1;
@@ -85,8 +85,7 @@ for (1..$num_reps) {
         my $n_duration = $n_end - $n_start;
         #print "T: ".$n_duration."\n";
 
-print $fh "$genotype_id, $mutations_count, $n_duration\n";
-
+        print $fh "$run, $genotype_id, $mutations_count, $n_duration\n";
     }
 }
 

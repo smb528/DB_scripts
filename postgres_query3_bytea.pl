@@ -40,7 +40,7 @@ my $password = $dbpass;
 my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::errstr;
 		       print "Opened database successfully\n";
 open(my $fh, '>', $out_file);
-print $fh "Result\tTime\n";
+print $fh "Run\tResult\tTime\n";
 
 my $sth = $dbh->prepare('select nd_protocolprop.value from nd_protocol join nd_protocolprop using(nd_protocol_id) where nd_protocol.name = ? ');
 
@@ -54,7 +54,7 @@ while (my $protocol_stored_value = $sth->fetchrow_array) {
     }
 }
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
 
     if (!$opt_l) {
         @selected_markers = ();
@@ -98,7 +98,7 @@ for (1..$num_reps) {
    my $n_end = Time::HiRes::time();
    my $n_duration = $n_end - $n_start;
 
-   print $fh  join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\t".$n_duration."\n";
+   print $fh $run."\t".join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\t".$n_duration."\n";
 
 }
 

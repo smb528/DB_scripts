@@ -35,9 +35,9 @@ my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::
 		       print "Opened database successfully\n";
 
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Mutations, Time\n";
+print $fh "Run, Stock ID, Number Mutations, Time\n";
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
 
     #Get List of all Stocks that were geotypes using the protocol given.
     my $sth_stock = $dbh->prepare("SELECT stock.stock_id from stock join nd_experiment_stock using(stock_id) join nd_experiment_protocol using(nd_experiment_id) join nd_protocol using(nd_protocol_id) where nd_protocol.name = ?;");
@@ -61,7 +61,7 @@ for (1..$num_reps) {
       my $n_duration = $n_end - $n_start;
       #print "T: ".$n_duration."\n";
 
-      print $fh "$stock_id, $mutations_count, $n_duration\n";
+      print $fh "$run, $stock_id, $mutations_count, $n_duration\n";
 
     }
 }

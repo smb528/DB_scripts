@@ -39,7 +39,7 @@ my $password = $dbpass;
 my $dbh = DBI->connect($dsn,$userid, $password, {RaiseError => 1}) or die $DBI::errstr;
 		       print "Opened database successfully\n";
 open(my $fh, '>', $out_file);
-print $fh "Result\tTime\n";
+print $fh "Run\tResult\tTime\n";
 
 my $json = JSON->new();
 
@@ -110,11 +110,11 @@ for (1..$num_reps) {
     }
 
     # print Dumper \@accessions_with_mutations;
-    print join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\n";
+    #print join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\n";
     my $n_end = Time::HiRes::time();
     my $n_duration = $n_end - $n_start;
 
-    print $fh  join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\t".$n_duration."\n";
+    print $fh  $run."\t".join(",", @accessions_with_mutations)." are accessions with mutations in markers:  ".join(",", @selected_markers)."\t".$n_duration."\n";
 
 }
 
