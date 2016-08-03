@@ -56,7 +56,7 @@ if (!$opt_l) {
     }
 }
 
-for (1..$num_reps) {
+for my $run (1..$num_reps) {
 
     if (!$opt_l) {
         @selected_markers = ();
