@@ -31,66 +31,49 @@ if ($opt_l) {
 
 my $start = Time::HiRes::time();
 
-my $client = MongoDB-> connect($dbhost);
-my $db = $client-> get_database($dbname);
-my $genotype_collection = $db->get_collection('genotype_collection');
-my $protocol_collection = $db->get_collection('protocol_collection');
+
 open(my $fh, '>', $out_file);
 print $fh "Run\tResult\tTime\n";
 
-my $json = JSON->new();
-
-my @marker_names;
-if (!$opt_l) {
-    my $protocol_cursor = $protocol_collection->find({protocol_name => $protocol_name});
-
-    while(my $row = $protocol_cursor->next){
-        my $marker = $row->{'marker_name'};
-        push @marker_names, $marker;
-    }
-}
 
 for my $run (1..$num_reps) {
 
+    my $n_start = Time::HiRes::time();
+    
+    my $client = MongoDB-> connect($dbhost);
+    my $db = $client-> get_database($dbname);
+    my $accession_collection = $db->get_collection('accession_collection');
+    my $genotype_collection = $db->get_collection('genotype_collection');
+    my $protocol_collection = $db->get_collection('protocol_collection');
+
+    my @marker_names;
     if (!$opt_l) {
+        my $protocol_cursor = $protocol_collection->find({protocol_name => $protocol_name});
+
+        while(my $row = $protocol_cursor->next){
+            my $marker = $row->{'marker_name'};
+            push @marker_names, $marker;
+        }
+
         @selected_markers = ();
 
         for (1..$num_random_markers) {
             push @selected_markers, $marker_names[int rand(scalar(@marker_names))];
         }
     }
-    my %selected_markers_hash = map { $_ => 1 } @selected_markers;
 
-    my $n_start = Time::HiRes::time();
-
-    my $protocol_cursor = $genotype_collection->find({protocol_name => $protocol_name});
+    my $accession_cursor = $accession_collection->find({protocol_name => $protocol_name} );
 
     my @accessions_with_mutations;
-    my %accessions_hash;
-    while(my $row = $protocol_cursor->next){
-
+    while(my $row = $accession_cursor->next){
         my $accession_name = $row->{'accession_name'};
-        my $marker_score = $row->{'marker_score'};
-        my $marker_name = $row->{'marker_name'};
 
-        my $mutations_count=0;
-        my $GT = $marker_score->{'GT'};
+        my $selected_marker_mutation_count = $genotype_collection->count({protocol_name => $protocol_name, accession_name=>$accession_name, 'marker_score.GT' => {'$nin' => ["0/0", "./."] }, marker_name=> {'$in' => \@selected_markers}});
 
-        if ($GT ne '0/0' && $GT ne './.' && exists($selected_markers_hash{$marker_name} ) ) {
-            if (exists($accessions_hash{$accession_name}) ) {
-                push @{ $accessions_hash{$accession_name} }, $marker_name;
-            }
-            else {
-                $accessions_hash{$accession_name}[0] = $marker_name;
-            }
+        if ($selected_marker_mutation_count == scalar(@selected_markers) ) {
+            push @accessions_with_mutations, $accession_name;
         }
-    }
-    #print Dumper \%accessions_hash;
 
-    foreach my $accession (keys %accessions_hash) {
-        if (scalar( @{ $accessions_hash{$accession} } ) == scalar(@selected_markers)) {
-            push @accessions_with_mutations, $accession;
-        }
     }
 
    #print Dumper \@accessions_with_mutations;

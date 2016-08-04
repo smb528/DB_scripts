@@ -30,17 +30,17 @@ my $db = $client-> get_database($dbname);
 my $genotype_collection = $db->get_collection('genotype_collection');
 
 open(my $fh, '>', $out_file);
-print $fh "Stock ID, Number Mutations, Time\n";
+print $fh "Run Number, Stock ID, Number Mutations, Time\n";
 
 my $json = JSON->new();
 
-for (1..$num_reps) {
-   my $n_start = Time::HiRes::time();
+for my $run (1..$num_reps) {
+
 
     my $cursor = $genotype_collection->find({protocol_name => $protocol_name});
 
     while(my $row = $cursor->next){
-
+        my $n_start = Time::HiRes::time();
         my $marker_scores = $row->{'marker_scores'};
         my $stock_id = $row->{'stock_id'};
 
@@ -80,7 +80,7 @@ for (1..$num_reps) {
         my $n_duration = $n_end - $n_start;
         #print "T: ".$n_duration."\n";
 
-        print $fh "$stock_id, $mutations_count, $n_duration\n";
+        print $fh "$run,$stock_id, $mutations_count, $n_duration\n";
 
     }
 }
